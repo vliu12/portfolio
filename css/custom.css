@@ -1,0 +1,285 @@
+/* =====================================================
+   Custom Dark Theme — inspired by brittanychiang.com
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ---- CSS custom properties ---- */
+:root {
+  --navy:            #0a192f;
+  --light-navy:      #112240;
+  --lightest-navy:   #233554;
+  --teal:            #64ffda;
+  --white:           #e6f1ff;
+  --lightest-slate:  #ccd6f6;
+  --light-slate:     #a8b2d8;
+  --slate:           #8892b0;
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+}
+
+/* ---- Spotlight ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    600px circle at var(--mouse-x) var(--mouse-y),
+    rgba(100, 255, 218, 0.05),
+    transparent 80%
+  );
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* ---- Base ---- */
+body {
+  font-family: 'Inter', sans-serif !important;
+  background-color: var(--navy) !important;
+  color: var(--slate) !important;
+}
+
+p {
+  color: var(--slate);
+  line-height: 1.75;
+  font-size: 0.9375rem;
+}
+
+a {
+  color: var(--teal);
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--teal);
+  text-decoration: underline;
+}
+
+/* ---- Typography ---- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Inter', sans-serif !important;
+  color: var(--lightest-slate) !important;
+  text-transform: none;
+}
+
+h1 {
+  font-size: 3.5rem !important;
+  line-height: 1.1 !important;
+  font-weight: 700;
+  color: var(--white) !important;
+}
+
+h1 span.text-primary {
+  color: var(--teal) !important;
+}
+
+h2 {
+  font-size: 1.25rem !important;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lightest-slate) !important;
+}
+
+h3 {
+  font-size: 1rem !important;
+  font-weight: 600;
+  color: var(--lightest-slate) !important;
+}
+
+.subheading {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500;
+  color: var(--teal) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.text-primary {
+  color: var(--teal) !important;
+}
+
+/* ---- Sidebar ---- */
+#sideNav {
+  background-color: var(--navy) !important;
+  border-right: 1px solid var(--lightest-navy);
+  width: 22rem !important;
+}
+
+@media (min-width: 992px) {
+  body {
+    padding-left: 22rem !important;
+  }
+}
+
+#sideNav .navbar-brand .img-profile {
+  border: 2px solid rgba(100, 255, 218, 0.25) !important;
+}
+
+/* Nav links with growing-line indicator */
+#sideNav .navbar-nav .nav-item .nav-link {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.7rem !important;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--slate) !important;
+  padding: 0.6rem 1rem !important;
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+  transition: color 0.2s ease;
+}
+
+#sideNav .navbar-nav .nav-item .nav-link::before {
+  content: '';
+  display: block;
+  width: 2rem;
+  height: 1px;
+  background-color: var(--slate);
+  flex-shrink: 0;
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+#sideNav .navbar-nav .nav-item .nav-link:hover {
+  color: var(--white) !important;
+}
+
+#sideNav .navbar-nav .nav-item .nav-link:hover::before {
+  width: 4rem;
+  background-color: var(--white);
+}
+
+#sideNav .navbar-nav .nav-item .nav-link.active {
+  color: var(--white) !important;
+}
+
+#sideNav .navbar-nav .nav-item .nav-link.active::before {
+  width: 4rem;
+  background-color: var(--white);
+}
+
+/* ---- Sections ---- */
+section.resume-section {
+  background-color: var(--navy) !important;
+  border-bottom: 1px solid var(--lightest-navy) !important;
+}
+
+/* ---- Resume / experience cards ---- */
+.resume-item {
+  border-radius: 8px;
+  padding: 1.25rem !important;
+  margin-bottom: 0.25rem;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resume-item:hover {
+  background-color: var(--light-navy) !important;
+  box-shadow: inset 0 0 0 1px var(--lightest-navy);
+}
+
+.resume-date span,
+.resume-date .text-primary {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem !important;
+  font-weight: 500;
+  color: var(--slate) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Social icons ---- */
+.list-social-icons a {
+  color: var(--slate) !important;
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+
+.list-social-icons a:hover {
+  color: var(--teal) !important;
+  transform: translateY(-3px);
+  text-decoration: none;
+}
+
+.list-social-icons .fa-circle {
+  display: none !important;
+}
+
+.list-social-icons .fa-stack {
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+}
+
+.list-social-icons .fa-stack-1x {
+  font-size: 1.25em;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ---- Skill icons ---- */
+.list-icons {
+  font-size: 2.25rem !important;
+}
+
+.list-icons .list-inline-item i {
+  color: var(--slate) !important;
+  transition: color 0.2s ease;
+}
+
+.list-icons .list-inline-item i:hover {
+  color: var(--teal) !important;
+}
+
+/* ---- Skill text badge (for languages without a devicon) ---- */
+.skill-text-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--slate);
+  height: 2.25rem;
+  transition: color 0.2s ease;
+  vertical-align: middle;
+}
+
+.skill-text-icon:hover {
+  color: var(--teal) !important;
+}
+
+/* ---- Awards ---- */
+.fa-trophy {
+  color: var(--teal) !important;
+}
+
+.fa-li {
+  color: var(--teal) !important;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--navy);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lightest-navy);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--light-slate);
+}
