@@ -38,6 +38,11 @@
       <span class="spacer"></span>
 
       <div class="status">
+        <button id="location-btn" type="button" aria-label="Location" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.6A2.6 2.6 0 1 1 12 6.4a2.6 2.6 0 0 1 0 5.2z"/>
+          </svg>
+        </button>
         <svg class="hide-sm" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 18.5a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5zm0-4.6c1.6 0 3.1.6 4.2 1.7l-1.6 1.6a3.7 3.7 0 0 0-5.2 0l-1.6-1.6a5.9 5.9 0 0 1 4.2-1.7zm0-4.6c2.8 0 5.4 1.1 7.4 3l-1.6 1.6a8 8 0 0 0-11.6 0L4.6 12.3a10.4 10.4 0 0 1 7.4-3zm0-4.6c4.1 0 7.9 1.6 10.7 4.3l-1.6 1.6a13 13 0 0 0-18.2 0L1.3 9C4.1 6.3 7.9 4.7 12 4.7z"/>
         </svg>
@@ -45,6 +50,37 @@
           <path d="M3.5 7.5h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-14a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2zm0 1.5a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h14a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5h-14zm1 1h11v4h-11v-4zm16 .5h1v3h-1v-3z"/>
         </svg>
         <span id="clock">—</span>
+      </div>
+    </div>
+
+    <!-- ============ Location popover ============ -->
+    <div id="location-panel" role="dialog" aria-label="Location" hidden>
+      <div class="cc-card cc-place">
+        <span class="cc-pin">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.6A2.6 2.6 0 1 1 12 6.4a2.6 2.6 0 0 1 0 5.2z"/>
+          </svg>
+        </span>
+        <span class="cc-place-text">
+          <span class="cc-title">San Jose</span>
+          <span class="cc-sub">California, United States</span>
+        </span>
+      </div>
+
+      <div class="cc-card">
+        <div class="cc-row">
+          <span class="cc-label">Local time</span>
+          <span class="cc-value" id="local-time">—</span>
+        </div>
+        <div class="cc-row">
+          <span class="cc-label">Time zone</span>
+          <span class="cc-value" id="local-zone">Pacific Time</span>
+        </div>
+      </div>
+
+      <div class="cc-card cc-note">
+        <span class="cc-label">Currently</span>
+        <span class="cc-note-text">Summer on ServiceNow's AI&nbsp;Discovery team</span>
       </div>
     </div>
 

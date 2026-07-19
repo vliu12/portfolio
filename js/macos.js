@@ -64,23 +64,105 @@
   var ICON_DOC =
     '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.3 1H4.5A1.5 1.5 0 0 0 3 2.5v11A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5V4.7L9.3 1zm-.3 4V2.1L12 5H9z"/></svg>';
 
+  var HOME_TZ = 'America/Los_Angeles';
+
   /* ---------- Live clock ---------- */
   function startClock() {
     var el = document.getElementById('clock');
-    if (!el) return;
+    var localEl = document.getElementById('local-time');
+    var zoneEl = document.getElementById('local-zone');
 
     function tick() {
       var now = new Date();
-      var day = now.toLocaleDateString('en-US', { weekday: 'short' });
-      var date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      var time = now
-        .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-        .replace(' ', ' ');
-      el.textContent = day + ' ' + date + '  ' + time;
+
+      if (el) {
+        var day = now.toLocaleDateString('en-US', { weekday: 'short' });
+        var date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        var time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        el.textContent = day + ' ' + date + '  ' + time;
+      }
+
+      // San Jose time, derived rather than hardcoded so it stays correct
+      // for the viewer's clock and across daylight saving.
+      if (localEl) {
+        localEl.textContent = now.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          timeZone: HOME_TZ
+        });
+      }
+
+      if (zoneEl) {
+        var parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: HOME_TZ,
+          timeZoneName: 'short'
+        }).formatToParts(now);
+
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i].type === 'timeZoneName') {
+            zoneEl.textContent = parts[i].value;
+            break;
+          }
+        }
+      }
     }
 
     tick();
     setInterval(tick, 10000);
+  }
+
+  /* ---------- Location popover ---------- */
+  function initLocationPanel() {
+    var btn = document.getElementById('location-btn');
+    var panel = document.getElementById('location-panel');
+    if (!btn || !panel) return;
+
+    function place() {
+      var r = btn.getBoundingClientRect();
+      panel.style.top = r.bottom + 6 + 'px';
+
+      // Right-align the panel to the icon, but keep it fully on screen.
+      // On narrow viewports the icon sits far from the right edge, so the
+      // offset must also be capped to keep the panel's left edge visible.
+      var right = window.innerWidth - r.right - 6;
+      var maxRight = Math.max(8, window.innerWidth - panel.offsetWidth - 8);
+      panel.style.right = Math.min(Math.max(right, 8), maxRight) + 'px';
+    }
+
+    function open() {
+      panel.hidden = false;
+      place();
+      btn.setAttribute('aria-expanded', 'true');
+    }
+
+    function close() {
+      panel.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (panel.hidden) {
+        open();
+      } else {
+        close();
+      }
+    });
+
+    // Clicking anywhere else, or pressing Escape, dismisses it.
+    document.addEventListener('click', function (e) {
+      if (!panel.hidden && !panel.contains(e.target) && !btn.contains(e.target)) {
+        close();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !panel.hidden) close();
+    });
+
+    window.addEventListener('resize', function () {
+      if (!panel.hidden) place();
+    });
   }
 
   /* ---------- Window manager ---------- */
@@ -293,6 +375,7 @@
   /* ---------- Boot ---------- */
   document.addEventListener('DOMContentLoaded', function () {
     startClock();
+    initLocationPanel();
     initProjectsApp();
     initDock();
 
