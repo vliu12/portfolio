@@ -131,7 +131,8 @@ body {
 }
 
 /* ============ Location popover (Control Center style) ============ */
-#menubar .status #location-btn {
+/* Shared treatment for the menu-bar status icons (GitHub, LinkedIn, pin). */
+#menubar .status .status-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,21 +143,29 @@ body {
   border-radius: 5px;
   background: none;
   color: inherit;
+  text-decoration: none;
   cursor: default;
+  flex-shrink: 0;
   transition: background-color 0.12s ease;
 }
 
-#menubar .status #location-btn svg {
+#menubar .status .status-icon svg {
   width: 15px;
   height: 15px;
+  fill: var(--text);
+  display: block;
 }
 
-#menubar .status #location-btn:hover {
+#menubar .status .status-icon:hover {
   background: rgba(255, 255, 255, 0.16);
 }
 
-#menubar .status #location-btn[aria-expanded='true'] {
+#menubar .status .status-icon[aria-expanded='true'] {
   background: rgba(255, 255, 255, 0.28);
+}
+
+#clock {
+  white-space: nowrap;
 }
 
 #location-panel {
@@ -386,6 +395,70 @@ body {
   font-weight: 600;
   color: rgba(245, 245, 247, 0.9);
   margin-left: 4px;
+}
+
+/* ---- Preview: PDF viewer ---- */
+.titlebar-spacer {
+  flex: 1;
+}
+
+.pdf-open-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(245, 245, 247, 0.72);
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 5px;
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+
+.pdf-open-link:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  text-decoration: none;
+}
+
+.pdf-open-link svg {
+  width: 11px;
+  height: 11px;
+  fill: currentColor;
+}
+
+.pdf-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
+  background: #525659; /* matches the built-in PDF viewer backdrop */
+}
+
+.pdf-frame {
+  flex: 1;
+  border: 0;
+  min-height: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Rendered by <object> only when the PDF can't be displayed inline. */
+.pdf-fallback {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.pdf-fallback a {
+  color: #6cb6ff;
 }
 
 /* Window body */
@@ -883,6 +956,15 @@ body {
 @media (max-width: 720px) {
   #menubar .hide-sm {
     display: none;
+  }
+
+  #menubar {
+    gap: 10px;
+    padding: 0 10px;
+  }
+
+  #menubar .status {
+    gap: 10px;
   }
 
   #greeting {

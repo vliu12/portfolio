@@ -79,7 +79,11 @@
         var day = now.toLocaleDateString('en-US', { weekday: 'short' });
         var date = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         var time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-        el.textContent = day + ' ' + date + '  ' + time;
+
+        // Narrow screens drop the date, the way macOS does, so the status
+        // icons and clock still fit on one line.
+        el.textContent =
+          window.innerWidth <= 720 ? time : day + ' ' + date + '  ' + time;
       }
 
       // San Jose time, derived rather than hardcoded so it stays correct
@@ -109,6 +113,7 @@
 
     tick();
     setInterval(tick, 10000);
+    window.addEventListener('resize', tick);
   }
 
   /* ---------- Location popover ---------- */
@@ -254,6 +259,14 @@
   function openWindow(win) {
     var wasHidden = win.hidden;
     win.hidden = false;
+
+    // Defer heavy embeds (the resume PDF) until the window is first opened.
+    // <object> takes its URL from `data`, everything else from `src`.
+    var lazy = win.querySelector('[data-src]');
+    if (lazy) {
+      var attr = lazy.tagName === 'OBJECT' ? 'data' : 'src';
+      if (!lazy.getAttribute(attr)) lazy.setAttribute(attr, lazy.dataset.src);
+    }
     win.classList.remove('minimizing');
     focusWindow(win);
     setRunning(win.dataset.app, true);
@@ -354,6 +367,30 @@
     renderProject(PROJECTS[0]);
   }
 
+  /* ---------- Links that open an app window ---------- */
+  function initAppLinks() {
+    document.querySelectorAll('a[data-opens]').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        var win = document.querySelector(
+          '.window[data-app="' + link.dataset.opens + '"]'
+        );
+        if (!win) return;
+
+        // Let cmd/ctrl/shift/middle clicks fall through to the href so
+        // "open in new tab" still works, and so does a plain click if
+        // this script never ran.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+
+        e.preventDefault();
+        if (win.hidden) {
+          openWindow(win);
+        } else {
+          focusWindow(win);
+        }
+      });
+    });
+  }
+
   /* ---------- Dock ---------- */
   function initDock() {
     document.querySelectorAll('.dock-app').forEach(function (btn) {
@@ -377,6 +414,7 @@
     startClock();
     initLocationPanel();
     initProjectsApp();
+    initAppLinks();
     initDock();
 
     document.querySelectorAll('.window').forEach(initWindow);
@@ -394,9 +432,11 @@
       win.hidden = wasHidden;
       win.style.visibility = '';
 
-      // Cascade Projects off Notes rather than centring both. Notes is the
-      // narrower window, so centring alone would leave them nearly flush.
-      var nudge = win.dataset.app === 'projects' ? 60 : 0;
+      // Cascade the windows rather than centring them all on top of
+      // each other. Notes is the narrowest, so centring alone would
+      // leave it nearly flush with Projects.
+      var CASCADE = { notes: 0, preview: 30, projects: 60 };
+      var nudge = CASCADE[win.dataset.app] || 0;
 
       win.style.left = Math.max(12, (window.innerWidth - w) / 2 + nudge) + 'px';
       win.style.top = Math.max(48, (window.innerHeight - h) / 2 - 30 + nudge) + 'px';
