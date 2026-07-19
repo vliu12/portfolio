@@ -35,13 +35,13 @@ body {
 }
 
 /* ---- Wallpaper ----
-   Photo: Unsplash (photo-1770121703270-4cbf801f6876), Unsplash License.
-   The slate fallback colour shows if the image is slow or missing. */
+   Photo: Unsplash (photo-1614065043559-bce24315e298), Unsplash License.
+   The deep-blue fallback colour shows if the image is slow or missing. */
 #desktop {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background-color: #6a7480;
+  background-color: #1b3a52;
   background-image: url('../img/wallpaper.jpg');
   background-size: cover;
   background-position: center center;
@@ -58,7 +58,7 @@ body {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 62% 50% at 50% 48%, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 74%),
+    radial-gradient(ellipse 62% 50% at 50% 48%, rgba(0, 0, 0, 0.38) 0%, rgba(0, 0, 0, 0) 74%),
     linear-gradient(
       180deg,
       rgba(0, 0, 0, 0.45) 0%,
