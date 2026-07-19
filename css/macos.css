@@ -1,0 +1,622 @@
+/* =====================================================
+   macOS-style desktop
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --menubar-h: 28px;
+  --text: #f5f5f7;
+  --text-dim: rgba(245, 245, 247, 0.68);
+  --window-bg: #1e1e1f;
+  --window-sidebar: #2a2a2c;
+  --window-header: #323234;
+  --hairline: rgba(255, 255, 255, 0.1);
+  --accent: #0a84ff;
+  --radius: 11px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* ---- Wallpaper ----
+   Photo: Unsplash (photo-1770121703270-4cbf801f6876), Unsplash License.
+   The slate fallback colour shows if the image is slow or missing. */
+#desktop {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background-color: #6a7480;
+  background-image: url('../img/wallpaper.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* Scrim: the sand and foam are near-white, so white UI text needs
+   darkening behind it. Heaviest at the top (menu bar), behind the
+   centred greeting, and at the very bottom (dock). */
+#desktop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 62% 50% at 50% 48%, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 74%),
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.45) 0%,
+      rgba(0, 0, 0, 0.14) 18%,
+      rgba(0, 0, 0, 0.1) 58%,
+      rgba(0, 0, 0, 0.4) 100%
+    );
+}
+
+/* ============ Menu bar ============ */
+#menubar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--menubar-h);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 14px;
+  font-size: 13px;
+  background: rgba(30, 30, 32, 0.36);
+  backdrop-filter: saturate(180%) blur(22px);
+  -webkit-backdrop-filter: saturate(180%) blur(22px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#menubar .menu-item {
+  cursor: default;
+  padding: 2px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  transition: background-color 0.12s ease;
+}
+
+#menubar .menu-item:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+#menubar .menu-item.bold {
+  font-weight: 600;
+}
+
+#menubar .apple-logo {
+  width: 14px;
+  height: 16px;
+  fill: var(--text);
+  display: block;
+}
+
+#menubar .spacer {
+  flex: 1;
+}
+
+#menubar .status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+#menubar .status svg {
+  width: 17px;
+  height: 17px;
+  fill: var(--text);
+  display: block;
+}
+
+#menubar a.menu-item {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ============ Desktop greeting ============ */
+#greeting {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(680px, calc(100vw - 48px));
+  text-align: center;
+  padding-bottom: 90px;
+  z-index: 1; /* above the wallpaper scrim (#desktop::after) */
+}
+
+#greeting .avatar {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  margin-bottom: 22px;
+}
+
+#greeting h1 {
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-weight: 700;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+#greeting .tagline {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.02em;
+  margin: 0 0 18px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+}
+
+#greeting .bio {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.96);
+  margin: 0 auto 26px;
+  max-width: 560px;
+  user-select: text;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+#greeting .links {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#greeting .links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background-color 0.16s ease, transform 0.16s ease;
+}
+
+#greeting .links a:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-2px);
+}
+
+#greeting .links svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+}
+
+/* ============ Window ============ */
+.window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--window-bg);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  z-index: 100;
+}
+
+.window[hidden] {
+  display: none;
+}
+
+.window.maximized {
+  top: var(--menubar-h) !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: calc(100vh - var(--menubar-h)) !important;
+  border-radius: 0;
+}
+
+.window.minimizing {
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.7, 0.2), opacity 0.32s ease;
+  transform: scale(0.06) translateY(70vh);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.window.opening {
+  animation: window-open 0.24s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@keyframes window-open {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Title bar */
+.titlebar {
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 13px;
+  background: var(--window-header);
+  border-bottom: 1px solid var(--hairline);
+  cursor: default;
+}
+
+.traffic {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.traffic button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.traffic .close {
+  background: #ff5f57;
+}
+.traffic .minimize {
+  background: #febc2e;
+}
+.traffic .zoom {
+  background: #28c840;
+}
+
+.traffic button svg {
+  width: 7px;
+  height: 7px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  stroke: rgba(0, 0, 0, 0.6);
+  stroke-width: 1.6;
+  fill: none;
+}
+
+.traffic:hover button svg {
+  opacity: 1;
+}
+
+.titlebar .title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(245, 245, 247, 0.9);
+  margin-left: 4px;
+}
+
+/* Window body */
+.window-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* Sidebar */
+.win-sidebar {
+  width: 208px;
+  flex-shrink: 0;
+  background: var(--window-sidebar);
+  border-right: 1px solid var(--hairline);
+  padding: 10px 8px;
+  overflow-y: auto;
+}
+
+.win-sidebar .section-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(245, 245, 247, 0.42);
+  padding: 6px 8px 4px;
+}
+
+.win-sidebar button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: rgba(245, 245, 247, 0.86);
+  font: inherit;
+  font-size: 0.8125rem;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.win-sidebar button:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.win-sidebar button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.win-sidebar button svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+/* Detail pane */
+.win-detail {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px 34px;
+  user-select: text;
+  min-width: 0;
+}
+
+.win-detail h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  letter-spacing: -0.015em;
+}
+
+.win-detail .meta {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(245, 245, 247, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 18px;
+}
+
+.win-detail .stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 22px;
+}
+
+.win-detail .stack span {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(245, 245, 247, 0.82);
+}
+
+.win-detail p {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: rgba(245, 245, 247, 0.8);
+  margin: 0 0 13px;
+}
+
+.win-detail .visit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  background: var(--accent);
+  padding: 7px 15px;
+  border-radius: 7px;
+  transition: filter 0.15s ease;
+}
+
+.win-detail .visit:hover {
+  filter: brightness(1.12);
+}
+
+.win-detail .visit svg {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+}
+
+/* Resize handle */
+.resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  z-index: 5;
+}
+
+/* ============ Dock ============ */
+#dock {
+  position: fixed;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9000;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 7px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  backdrop-filter: saturate(180%) blur(22px);
+  -webkit-backdrop-filter: saturate(180%) blur(22px);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+}
+
+.dock-app {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+  transform-origin: bottom center;
+}
+
+.dock-app:hover {
+  transform: scale(1.22) translateY(-6px);
+}
+
+.dock-app .icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.dock-app .icon.projects {
+  background: linear-gradient(160deg, #6fc3ff 0%, #2a7fe0 100%);
+}
+
+.dock-app .icon svg {
+  width: 30px;
+  height: 30px;
+  fill: #fff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.22));
+}
+
+.dock-app .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  margin-top: 4px;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.dock-app.running .dot {
+  opacity: 1;
+}
+
+.dock-app .tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--text);
+  background: rgba(50, 50, 52, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease;
+}
+
+.dock-app:hover .tooltip {
+  opacity: 1;
+}
+
+/* ============ Scrollbars ============ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 720px) {
+  #menubar .hide-sm {
+    display: none;
+  }
+
+  #greeting {
+    padding-bottom: 110px;
+  }
+
+  #greeting .avatar {
+    width: 84px;
+    height: 84px;
+    margin-bottom: 16px;
+  }
+
+  .window {
+    top: calc(var(--menubar-h) + 8px) !important;
+    left: 8px !important;
+    width: calc(100vw - 16px) !important;
+    height: calc(100vh - var(--menubar-h) - 108px) !important;
+  }
+
+  .win-sidebar {
+    width: 138px;
+  }
+
+  .win-detail {
+    padding: 20px 18px 26px;
+  }
+
+  .resize-handle {
+    display: none;
+  }
+}
