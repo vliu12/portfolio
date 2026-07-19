@@ -48,24 +48,21 @@ body {
   background-repeat: no-repeat;
 }
 
-/* Scrim: the sand and foam are near-white, so white UI text needs
-   darkening behind it. Heaviest at the top (menu bar), behind the
-   centred greeting, and at the very bottom (dock). */
+/* Scrim: page text now lives inside windows, so this only needs to
+   keep the menu bar and dock legible against bright parts of the photo. */
 #desktop::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse 62% 50% at 50% 48%, rgba(0, 0, 0, 0.38) 0%, rgba(0, 0, 0, 0) 74%),
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.45) 0%,
-      rgba(0, 0, 0, 0.14) 18%,
-      rgba(0, 0, 0, 0.1) 58%,
-      rgba(0, 0, 0, 0.4) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.42) 0%,
+    rgba(0, 0, 0, 0.08) 16%,
+    rgba(0, 0, 0, 0.06) 62%,
+    rgba(0, 0, 0, 0.36) 100%
+  );
 }
 
 /* ============ Menu bar ============ */
@@ -133,95 +130,14 @@ body {
   text-decoration: none;
 }
 
-/* ============ Desktop greeting ============ */
-#greeting {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(680px, calc(100vw - 48px));
-  text-align: center;
-  padding-bottom: 90px;
-  z-index: 1; /* above the wallpaper scrim (#desktop::after) */
-}
-
-#greeting .avatar {
-  width: 104px;
-  height: 104px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  margin-bottom: 22px;
-}
-
-#greeting h1 {
-  font-size: clamp(2.2rem, 6vw, 3.4rem);
-  font-weight: 700;
-  margin: 0 0 10px;
-  letter-spacing: -0.02em;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.35);
-}
-
-#greeting .tagline {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 0.02em;
-  margin: 0 0 18px;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
-}
-
-#greeting .bio {
-  font-size: 0.95rem;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.96);
-  margin: 0 auto 26px;
-  max-width: 560px;
-  user-select: text;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
-}
-
-#greeting .links {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-#greeting .links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 16px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text);
-  text-decoration: none;
-  background: rgba(255, 255, 255, 0.13);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: background-color 0.16s ease, transform 0.16s ease;
-}
-
-#greeting .links a:hover {
-  background: rgba(255, 255, 255, 0.24);
-  transform: translateY(-2px);
-}
-
-#greeting .links svg {
-  width: 15px;
-  height: 15px;
-  fill: currentColor;
-}
-
 /* ============ Window ============ */
 .window {
   position: absolute;
   display: flex;
   flex-direction: column;
+  /* Never taller/wider than the desktop, whatever the inline size says. */
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 104px);
   background: var(--window-bg);
   border-radius: var(--radius);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -460,6 +376,218 @@ body {
   fill: currentColor;
 }
 
+/* ============ Notes app (light theme) ============
+   Overrides the dark window chrome above to match macOS Notes. */
+.theme-notes {
+  --notes-amber: #d99b21;
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.16);
+  color: #1d1d1f;
+}
+
+.theme-notes .titlebar {
+  height: 46px;
+  background: #ebebeb;
+  border-bottom: 1px solid #d8d8d8;
+  gap: 12px;
+  padding: 0 12px;
+}
+
+.theme-notes .traffic button svg {
+  stroke: rgba(0, 0, 0, 0.55);
+}
+
+.theme-notes .notes-tools {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-left: 6px;
+}
+
+.theme-notes .notes-tools svg {
+  width: 17px;
+  height: 17px;
+  fill: #7b7b7f;
+  display: block;
+}
+
+.theme-notes .tool-sep {
+  width: 1px;
+  height: 17px;
+  background: #cfcfcf;
+}
+
+.theme-notes .notes-search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 148px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #d5d5d5;
+  color: #a1a1a6;
+  font-size: 0.8125rem;
+  flex-shrink: 0;
+}
+
+.theme-notes .notes-search svg {
+  width: 13px;
+  height: 13px;
+  fill: #a1a1a6;
+  flex-shrink: 0;
+}
+
+/* Note list pane */
+.theme-notes .notes-list {
+  width: 232px;
+  flex-shrink: 0;
+  background: #fbfbfb;
+  border-right: 1px solid #e2e2e2;
+  padding: 6px 8px 10px;
+  overflow-y: auto;
+}
+
+.theme-notes .notes-list-header {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  padding: 8px 8px 6px;
+}
+
+.theme-notes .note-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.theme-notes .note-item:hover {
+  background: rgba(0, 0, 0, 0.045);
+}
+
+.theme-notes .note-item.active {
+  background: #ffe8a3;
+}
+
+.theme-notes .note-item-title {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 2px;
+}
+
+.theme-notes .note-item-meta {
+  display: block;
+  font-size: 0.75rem;
+  color: #86868b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-notes .note-item-date {
+  color: #1d1d1f;
+  margin-right: 5px;
+}
+
+/* Note content pane */
+.theme-notes .notes-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #ffffff;
+  padding: 16px 46px 28px;
+  user-select: text;
+  min-width: 0;
+}
+
+.theme-notes .note-timestamp {
+  text-align: center;
+  font-size: 0.6875rem;
+  color: #9b9b9f;
+  margin-bottom: 22px;
+}
+
+.theme-notes .note-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
+.theme-notes .note-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0 0 16px;
+  letter-spacing: -0.01em;
+}
+
+.theme-notes .note-lead {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin: 0 0 4px;
+}
+
+.theme-notes .note-sub {
+  font-size: 0.875rem;
+  color: #86868b;
+  margin: 0 0 18px;
+}
+
+.theme-notes .notes-content p {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: #1d1d1f;
+  margin: 0 0 14px;
+}
+
+.theme-notes .note-heading {
+  font-weight: 700;
+  margin-top: 24px !important;
+  margin-bottom: 8px !important;
+}
+
+.theme-notes .note-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.theme-notes .note-links li {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+}
+
+.theme-notes .note-links a {
+  color: var(--notes-amber);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.theme-notes .note-links a:hover {
+  color: #b87d10;
+}
+
+.theme-notes ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.theme-notes ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.34);
+}
+
 /* Resize handle */
 .resize-handle {
   position: absolute;
@@ -519,6 +647,27 @@ body {
 
 .dock-app .icon.projects {
   background: linear-gradient(160deg, #6fc3ff 0%, #2a7fe0 100%);
+}
+
+/* Notes: yellow header strip over lined white paper. */
+.dock-app .icon.notes {
+  background: linear-gradient(
+    180deg,
+    #ffd95e 0%,
+    #fccf3f 26%,
+    #ffffff 26%,
+    #f4f4f4 100%
+  );
+}
+
+.dock-app .icon.notes svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #d6d6d6;
+  stroke-width: 2;
+  stroke-linecap: round;
+  filter: none;
 }
 
 .dock-app .icon svg {
@@ -614,6 +763,24 @@ body {
 
   .win-detail {
     padding: 20px 18px 26px;
+  }
+
+  .theme-notes .notes-list {
+    width: 132px;
+    padding: 4px 5px 8px;
+  }
+
+  .theme-notes .notes-content {
+    padding: 14px 18px 28px;
+  }
+
+  .theme-notes .notes-search {
+    display: none;
+  }
+
+  .theme-notes .note-avatar {
+    width: 68px;
+    height: 68px;
   }
 
   .resize-handle {

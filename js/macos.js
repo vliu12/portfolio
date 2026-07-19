@@ -298,22 +298,29 @@
 
     document.querySelectorAll('.window').forEach(initWindow);
 
-    // Centre the Projects window on first paint. It starts hidden, and a
-    // hidden element measures 0, so un-hide it invisibly to take the size.
-    var projectsWin = document.querySelector('.window[data-app="projects"]');
-    if (projectsWin) {
-      var wasHidden = projectsWin.hidden;
-      projectsWin.style.visibility = 'hidden';
-      projectsWin.hidden = false;
+    // Place each window on first paint. They start hidden, and a hidden
+    // element measures 0, so un-hide invisibly to take the size.
+    document.querySelectorAll('.window').forEach(function (win) {
+      var wasHidden = win.hidden;
+      win.style.visibility = 'hidden';
+      win.hidden = false;
 
-      var w = projectsWin.offsetWidth;
-      var h = projectsWin.offsetHeight;
+      var w = win.offsetWidth;
+      var h = win.offsetHeight;
 
-      projectsWin.hidden = wasHidden;
-      projectsWin.style.visibility = '';
+      win.hidden = wasHidden;
+      win.style.visibility = '';
 
-      projectsWin.style.left = Math.max(12, (window.innerWidth - w) / 2) + 'px';
-      projectsWin.style.top = Math.max(48, (window.innerHeight - h) / 2 - 30) + 'px';
-    }
+      // Cascade Projects off Notes rather than centring both. Notes is the
+      // narrower window, so centring alone would leave them nearly flush.
+      var nudge = win.dataset.app === 'projects' ? 60 : 0;
+
+      win.style.left = Math.max(12, (window.innerWidth - w) / 2 + nudge) + 'px';
+      win.style.top = Math.max(48, (window.innerHeight - h) / 2 - 30 + nudge) + 'px';
+    });
+
+    // Notes is the landing view: open it as soon as the desktop loads.
+    var notesWin = document.querySelector('.window[data-app="notes"]');
+    if (notesWin) openWindow(notesWin);
   });
 })();
