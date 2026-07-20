@@ -19,7 +19,7 @@
 
     <!-- ?v= is a cache buster: bump it whenever the CSS or JS changes so
          browsers (and GitHub Pages visitors) don't run a stale stylesheet. -->
-    <link href="css/macos.css?v=3" rel="stylesheet">
+    <link href="css/macos.css?v=5" rel="stylesheet">
 
   </head>
 
@@ -27,9 +27,11 @@
 
     <!-- ============ Menu bar ============ -->
     <div id="menubar">
-      <svg class="apple-logo" viewBox="0 0 384 512" aria-hidden="true">
-        <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
-      </svg>
+      <button id="apple-btn" type="button" aria-label="Apple menu" aria-expanded="false">
+        <svg class="apple-logo" viewBox="0 0 384 512" aria-hidden="true">
+          <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+        </svg>
+      </button>
       <span class="menu-item bold">Victoria Liu</span>
       <span class="menu-item hide-sm">File</span>
       <span class="menu-item hide-sm">Edit</span>
@@ -78,6 +80,34 @@
       </div>
     </div>
 
+    <!-- ============ Apple menu ============ -->
+    <div id="apple-menu" role="menu" aria-label="Apple menu" hidden>
+      <button class="am-item" type="button" data-opens-window="about" role="menuitem">About This Mac</button>
+      <div class="am-sep"></div>
+      <button class="am-item" type="button" role="menuitem">System Settings…</button>
+      <button class="am-item" type="button" role="menuitem">App Store</button>
+      <div class="am-sep"></div>
+      <button class="am-item am-submenu" type="button" role="menuitem">
+        Recent Items
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7z"/></svg>
+      </button>
+      <div class="am-sep"></div>
+      <button class="am-item" type="button" role="menuitem">
+        Force Quit…<span class="am-key">⌥⇧⌘⎋</span>
+      </button>
+      <div class="am-sep"></div>
+      <button class="am-item" type="button" role="menuitem">Sleep</button>
+      <button class="am-item" type="button" role="menuitem">Restart…</button>
+      <button class="am-item" type="button" role="menuitem">Shut Down…</button>
+      <div class="am-sep"></div>
+      <button class="am-item" type="button" role="menuitem">
+        Lock Screen<span class="am-key">⌃⌘Q</span>
+      </button>
+      <button class="am-item" type="button" role="menuitem">
+        Log Out Victoria Liu…<span class="am-key">⇧⌘Q</span>
+      </button>
+    </div>
+
     <!-- ============ Location popover ============ -->
     <div id="location-panel" role="dialog" aria-label="Location" hidden>
       <div class="cc-card cc-place">
@@ -113,7 +143,7 @@
     <div id="desktop">
 
       <!-- ---------- Notes (light theme) ---------- -->
-      <div class="window theme-notes" data-app="notes" style="width: 780px; height: 648px;" hidden>
+      <div class="window theme-notes" data-app="notes" style="width: 780px; height: 452px;" hidden>
         <div class="titlebar">
           <div class="traffic">
             <button class="close" type="button" aria-label="Close">
@@ -151,7 +181,7 @@
               <span class="note-item-title">About Me</span>
               <span class="note-item-meta">
                 <span class="note-item-date">Jul 18</span>
-                hi, i'm victoria! cs @ carnegie mellon
+                Hi, I'm Victoria! I'm a junior at CMU…
               </span>
             </button>
           </nav>
@@ -159,12 +189,9 @@
           <article class="notes-content">
             <div class="note-timestamp">July 18, 2026 at 6:04 PM</div>
 
-            <img class="note-avatar" src="img/profile.jpg" alt="Victoria Liu">
-
             <h1 class="note-title">About Me</h1>
 
-            <p class="note-lead">hi, i'm victoria!</p>
-            <p class="note-sub">cs @ carnegie mellon · machine learning · software engineer</p>
+            <p class="note-lead">Hi, I'm Victoria!</p>
 
             <p>
               I'm a junior at Carnegie Mellon University studying Computer Science with a
@@ -177,6 +204,37 @@
         </div>
 
         <div class="resize-handle"></div>
+      </div>
+
+      <!-- ---------- About This Mac ---------- -->
+      <div class="window theme-about" data-app="about" style="width: 372px; height: 566px;" hidden>
+        <div class="titlebar">
+          <div class="traffic">
+            <button class="close" type="button" aria-label="Close">
+              <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1.5 1.5l5 5M6.5 1.5l-5 5"/></svg>
+            </button>
+            <span class="dot-disabled"></span>
+            <span class="dot-disabled"></span>
+          </div>
+        </div>
+
+        <div class="about-body">
+          <img class="about-portrait" src="img/profile.jpg" alt="Victoria Liu">
+
+          <h1 class="about-name">Victoria Liu</h1>
+          <p class="about-sub">April 2006</p>
+
+          <dl class="about-specs">
+            <dt>Education</dt><dd>Carnegie Mellon University</dd>
+            <dt>Currently</dt><dd>ServiceNow</dd>
+            <dt>Previously</dt><dd>Turing</dd>
+          </dl>
+
+          <div class="about-footer">
+            <span class="about-cert">Regulatory Certification</span>
+            <p>© 2026 Victoria Liu.<br>All Rights Reserved.</p>
+          </div>
+        </div>
       </div>
 
       <!-- ---------- Mail: compose ---------- -->
@@ -366,7 +424,7 @@
       </button>
     </div>
 
-    <script src="js/macos.js?v=3"></script>
+    <script src="js/macos.js?v=5"></script>
 
   </body>
 

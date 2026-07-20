@@ -137,6 +137,84 @@
     window.addEventListener('resize', tick);
   }
 
+  /* ---------- Apple menu ---------- */
+  function initAppleMenu() {
+    var btn = document.getElementById('apple-btn');
+    var menu = document.getElementById('apple-menu');
+    if (!btn || !menu) return;
+
+    function place() {
+      var r = btn.getBoundingClientRect();
+      menu.style.top = r.bottom + 4 + 'px';
+      menu.style.left = Math.max(4, r.left - 4) + 'px';
+    }
+
+    function close() {
+      menu.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+    }
+
+    function open() {
+      closeMenus(menu); // only one menu bar item open at a time
+      menu.hidden = false;
+      place();
+      btn.setAttribute('aria-expanded', 'true');
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (menu.hidden) {
+        open();
+      } else {
+        close();
+      }
+    });
+
+    menu.querySelectorAll('.am-item').forEach(function (item) {
+      item.addEventListener('click', function () {
+        var app = item.dataset.opensWindow;
+        if (app) {
+          var win = document.querySelector('.window[data-app="' + app + '"]');
+          if (win) {
+            if (win.hidden) {
+              openWindow(win);
+            } else {
+              focusWindow(win);
+            }
+          }
+        }
+        // Decorative entries simply dismiss the menu, as a no-op would.
+        close();
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !menu.hidden) close();
+    });
+
+    window.addEventListener('resize', function () {
+      if (!menu.hidden) place();
+    });
+  }
+
+  // Close every menu-bar dropdown except the one being opened.
+  function closeMenus(except) {
+    [
+      ['apple-menu', 'apple-btn'],
+      ['location-panel', 'location-btn']
+    ].forEach(function (pair) {
+      var panel = document.getElementById(pair[0]);
+      var button = document.getElementById(pair[1]);
+      if (!panel || panel === except || panel.hidden) return;
+      panel.hidden = true;
+      if (button) button.setAttribute('aria-expanded', 'false');
+    });
+  }
+
   /* ---------- Location popover ---------- */
   function initLocationPanel() {
     var btn = document.getElementById('location-btn');
@@ -156,6 +234,7 @@
     }
 
     function open() {
+      closeMenus(panel); // only one menu bar item open at a time
       panel.hidden = false;
       place();
       btn.setAttribute('aria-expanded', 'true');
@@ -550,6 +629,7 @@
   /* ---------- Boot ---------- */
   document.addEventListener('DOMContentLoaded', function () {
     startClock();
+    initAppleMenu();
     initLocationPanel();
     initProjectsApp();
     initMailApp();
@@ -574,7 +654,7 @@
       // Cascade the windows rather than centring them all on top of
       // each other. Notes is the narrowest, so centring alone would
       // leave it nearly flush with Projects.
-      var CASCADE = { notes: 0, preview: 30, mail: 45, projects: 60 };
+      var CASCADE = { notes: 0, about: 15, preview: 30, mail: 45, projects: 60 };
       var nudge = CASCADE[win.dataset.app] || 0;
 
       win.style.left = Math.max(12, (window.innerWidth - w) / 2 + nudge) + 'px';
