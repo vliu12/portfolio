@@ -1,11 +1,18 @@
 /* ==========================================================================
-   Messages — a scripted portfolio assistant.
+   Messages: a scripted auto-reply that texts like Victoria.
 
    There is no model behind this. The site is static on GitHub Pages, so any
-   API key shipped here would be public; instead every answer is written by
-   hand below and picked by keyword scoring. Answers speak about Victoria in
-   the third person and stay to 2–5 sentences, and anything not covered falls
-   through to FALLBACK rather than being invented.
+   API key shipped here would be public; instead every reply is written by
+   hand below and picked by keyword scoring. The voice is first-person and
+   texts-a-close-friend casual: lowercase, abbreviations (idk, tbh, rn, bc),
+   short rapid-fire bubbles, and NO em dashes anywhere. When someone asks
+   whether it's really her, it says so (see the 'bot' topic): friendly, but
+   never pretending to be a live person. Off-topic stuff falls through to
+   FALLBACK rather than being invented.
+
+   Style rules for any new copy: no em or en dashes (plain hyphens / "to" /
+   commas only), keep product + company names capitalized for legibility, and
+   split anything longer than a sentence or two into separate bubbles.
 
    To teach it something new: add an entry to KB. `match` holds the words and
    phrases that should trigger it, `reply` holds the bubbles it sends back.
@@ -13,39 +20,44 @@
 (function () {
   'use strict';
 
-  var FALLBACK =
-    "I don't have that information, but you can contact Victoria directly to " +
-    'learn more — the Mail app in the dock goes straight to her inbox.';
+  var FALLBACK = [
+    "hmm idk that one tbh",
+    "but shoot me an email (mail app in the dock) and i'll actually answer :)"
+  ];
 
   /* Three knobs decide which topic answers a question:
 
-     match — strong terms. Multi-word phrases outscore single words, so a topic
-             needing disambiguation ("machine learning" vs. a bare "learning")
-             should list the phrase.
-     weak  — conversational filler that hints at a topic but must never beat a
-             real one. "tell me about sightbridge" is about SightBridge, not a
-             request for Victoria's bio.
-     broad — set on hub topics (projects, skills, experience). They lose ties to
-             a specific topic, so "blockchain project" gets the blockchain
-             answer rather than the project list. */
+     match: strong terms. Multi-word phrases outscore single words, so a topic
+            needing disambiguation ("machine learning" vs. a bare "learning")
+            should list the phrase.
+     weak:  conversational filler that hints at a topic but must never beat a
+            real one. "tell me about sightbridge" is about SightBridge, not a
+            request for a bio.
+     broad: set on hub topics (projects, skills, experience). They lose ties to
+            a specific topic, so "blockchain project" gets the blockchain
+            answer rather than the project list. */
   var KB = [
     {
       id: 'greeting',
       match: ['hi', 'hey', 'hello', 'yo', 'howdy', 'good morning', 'good evening', 'whats up', 'sup'],
       reply: [
-        'Hey there! 👋',
-        "I'm Victoria's portfolio assistant. Ask me about her projects, internships, technical skills, or coursework and I'll fill you in."
+        'heyy!! 👋',
+        'ask me anything abt my projects, internships, classes, whatever',
+        'or just tap a button below lol'
       ]
     },
     {
       id: 'about',
       broad: true,
-      match: ['who is victoria', 'who are you', 'introduce', 'bio', 'her background'],
+      match: ['who is victoria', 'who are you', 'introduce', 'bio', 'your background', 'about you'],
       weak: ['about victoria', 'about her', 'tell me about', 'yourself', 'summary', 'overview'],
-      reply:
-        'Victoria Liu is a Computer Science student at Carnegie Mellon University with a concentration in Machine Learning, graduating in May 2028. ' +
-        "She was born and raised in Vancouver, Canada, and she's currently a Software Engineer Intern at ServiceNow on the AI Control Tower team. " +
-        'Her work spans backend and full-stack engineering, with a through-line of building tools people actually rely on day to day.'
+      reply: [
+        'aw hii ok so',
+        "i'm a cs major at CMU doing the machine learning concentration, graduating 2028",
+        'grew up in Vancouver btw 🇨🇦',
+        "rn i'm interning at ServiceNow on their AI Control Tower team",
+        'mostly i just love building backend + full stack stuff ppl actually use :)'
+      ]
     },
     {
       id: 'education',
@@ -53,26 +65,28 @@
         'education', 'school', 'university', 'college', 'cmu', 'carnegie mellon', 'degree',
         'major', 'study', 'studying', 'gpa', 'graduate', 'graduation', 'grades', 'year'
       ],
-      reply:
-        'Victoria is pursuing a B.S. in Computer Science at Carnegie Mellon University with a concentration in Machine Learning, from August 2024 to May 2028. ' +
-        'She holds a 3.71/4.0 GPA. Ask about her coursework if you want to know what she has taken.'
+      reply: [
+        "i'm at CMU doing cs w an ml concentration, 2024 to 2028",
+        "gpa's a 3.71 if ur curious lol",
+        "ask me abt my classes if u wanna know what i've taken!"
+      ]
     },
     {
       id: 'coursework',
       match: [
-        'coursework', 'courses', 'classes', 'curriculum', 'what has she taken',
+        'coursework', 'courses', 'classes', 'curriculum', 'what have you taken', 'what has she taken',
         'parallel data structures', 'computer systems', 'algorithms', 'probability',
         'discrete math', 'discrete mathematics', 'human ai interaction', 'theoretical foundations'
       ],
       reply: [
-        "Victoria's coursework at CMU covers:",
+        "ok here's what i've taken so far:",
         '• Parallel Data Structures and Algorithms\n' +
         '• Computer Systems\n' +
         '• Algorithms and Theoretical Foundations\n' +
         '• Human-AI Interaction\n' +
         '• Probability\n' +
         '• Discrete Mathematics',
-        "She also TAs 15-150: Principles of Functional Programming, so she knows that one inside out."
+        'and i TA 15-150 (functional programming) so i basically live in that one lol'
       ]
     },
     {
@@ -80,18 +94,18 @@
       broad: true,
       match: [
         'skills', 'tech stack', 'technologies', 'languages', 'programming languages',
-        'what can she code', 'what does she know', 'frameworks', 'proficient',
+        'what can you code', 'what do you know', 'frameworks', 'proficient',
         'python', 'javascript', 'c++', 'assembly', 'bash', 'php', 'docker', 'kubernetes',
         'postgresql', 'sql', 'django', 'html', 'css'
       ],
       weak: ['tools', 'code', 'coding'],
       reply: [
-        "Here's what Victoria works in:",
-        '• Languages — C, Python, C++, JavaScript, HTML, CSS, Assembly, Bash, PHP, Standard ML\n' +
-        '• Backend — Django, FastAPI, Flask, Node.js, REST APIs, PostgreSQL, MongoDB\n' +
-        '• Frontend — React, React Native, TypeScript\n' +
-        '• Infra & tools — Docker, Kubernetes, Git',
-        'Ask about any one of these and I can point you to where she used it.'
+        'ooh ok my stack:',
+        '• languages: C, Python, C++, JavaScript, HTML, CSS, Assembly, Bash, PHP, Standard ML\n' +
+        '• backend: Django, FastAPI, Flask, Node.js, REST APIs, PostgreSQL, MongoDB\n' +
+        '• frontend: React, React Native, TypeScript\n' +
+        '• infra + tools: Docker, Kubernetes, Git',
+        "ask abt any of em and i'll tell u where i actually used it"
       ]
     },
     {
@@ -99,49 +113,58 @@
       broad: true,
       match: [
         'experience', 'work experience', 'internship', 'internships', 'jobs', 'job',
-        'employment', 'where has she worked', 'career', 'companies', 'worked at'
+        'employment', 'where have you worked', 'where has she worked', 'career', 'companies', 'worked at'
       ],
       weak: ['professional', 'work'],
       reply: [
-        "Victoria's professional experience so far:",
-        '• ServiceNow — Software Engineer Intern, AI Control Tower team (May–Aug 2026)\n' +
-        '• Turing — Software Developer (Jul–Oct 2025)\n' +
-        '• Wealthmeup.ai — Software Developer Intern (May–Jul 2025)\n' +
-        '• ScottyLabs — Software Developer (Jan 2025–present)\n' +
-        '• CMU 15-150 — Teaching Assistant (Jan 2026–present)',
-        'Ask about any of them for the details.'
+        "here's everywhere i've worked so far:",
+        '• ServiceNow: SWE intern, AI Control Tower team (may-aug 2026)\n' +
+        '• Turing: software dev (jul-oct 2025)\n' +
+        '• Wealthmeup.ai: software dev intern (may-jul 2025)\n' +
+        '• ScottyLabs: software dev (jan 2025-now)\n' +
+        '• CMU 15-150: teaching assistant (jan 2026-now)',
+        'lmk which one u wanna hear abt!'
       ]
     },
     {
       id: 'servicenow',
       match: ['servicenow', 'service now', 'ai control tower', 'current job', 'current role', 'currently', 'right now'],
-      reply:
-        'Victoria is a Software Engineer Intern at ServiceNow in Santa Clara, CA, on the AI Control Tower team, from May to August 2026. ' +
-        "It's her current role, so there's less public detail on it than her past work — reach out to her directly if you'd like to hear more."
+      reply: [
+        "yeah!! i'm at ServiceNow in santa clara this summer",
+        'on the AI Control Tower team',
+        "it's my current thing so i can't say a ton publicly yet tbh",
+        'but email me if u wanna chat abt it :)'
+      ]
     },
     {
       id: 'turing',
       match: ['turing', 'palo alto', 'dashboards', 'internal dashboard', 'concurrent users'],
-      reply:
-        'At Turing in Palo Alto, Victoria worked as a Software Developer from July to October 2025. ' +
-        'She built internal dashboards with Django and REST APIs that cut team coordination time by 25%, and engineered UI flows and backend integrations to reliably support 4,500+ concurrent users during a planned scale-up. ' +
-        'She also implemented advanced search, filtering, and pagination that reduced data retrieval latency by 30% across large datasets, plus real-time JSON endpoints for cross-team data sync.'
+      reply: [
+        'at Turing i was a software dev in palo alto (jul-oct 2025)',
+        'built internal dashboards w Django + REST',
+        'cut our coordination time like 25%, and got the backend solid enough for 4,500+ concurrent users during a scale up',
+        'also did the search/filter/pagination stuff, dropped data retrieval latency ~30% on big datasets'
+      ]
     },
     {
       id: 'wealthmeup',
       match: ['wealthmeup', 'wealth me up', 'slack alert', 'scraping pipeline', 'lead generation', 'fintech'],
-      reply:
-        'Victoria was a Software Developer Intern at Wealthmeup.ai from May to July 2025. ' +
-        'She spearheaded an automated Slack alert system that monitored account balances, eliminating manual checks and cutting response delays by 50%. ' +
-        'She also engineered Python scraping pipelines that aggregated multi-source outreach data and raised lead generation efficiency by 40%, and partnered with product and growth teams on new app features.'
+      reply: [
+        'wealthmeup was a software dev internship, summer 2025',
+        'i built an automated Slack alert system for account balances',
+        'killed a bunch of manual checking, cut response delays in half lol',
+        'also wrote Python scraping pipelines that bumped lead gen efficiency ~40%'
+      ]
     },
     {
       id: 'scottylabs',
       match: ['scottylabs', 'scotty labs', 'cmueats', 'cmu eats', 'dining', 'diningapi', 'pwa', 'mongodb'],
-      reply:
-        'Victoria has been a Software Developer at ScottyLabs since January 2025, working on CMUEats — a full-stack PWA serving 3,000+ monthly users with live dining availability across CMU. ' +
-        'She built an SSO-enabled rating and review system storing 1,000+ feedback entries in MongoDB, and integrated DiningAPI to scrape 20+ CMU dining sites and distribute real-time data through a RESTful API. ' +
-        'She works on it in a 7-person team, and is also spearheading a separate DiningAPI in Node.js/Bun.'
+      reply: [
+        "scottylabs is my club at CMU! been on CMUEats since jan 2025",
+        "it's a dining app ~3k students use to see what's open on campus",
+        'i built the ratings + reviews system (SSO, 1k+ entries in MongoDB)',
+        'and hooked up DiningAPI to scrape 20+ dining sites into a REST api. team of 7 :)'
+      ]
     },
     {
       id: 'teaching',
@@ -149,65 +172,76 @@
         'teaching assistant', 'ta', 'teach', 'teaching', '15-150', '15150', 'functional programming',
         'standard ml', 'sml', 'recitation', 'office hours', 'tutor'
       ],
-      reply:
-        'Victoria has been a Teaching Assistant for 15-150: Principles of Functional Programming at CMU since January 2026. ' +
-        'She leads weekly recitations and office hours for a proof- and code-intensive course taught in Standard ML, guiding students through recursion, higher-order functions, cost analysis with work/span reasoning, and inductive proofs. ' +
-        'She also gives detailed feedback on code correctness and formal reasoning.'
+      reply: [
+        'yeah! i TA 15-150: principles of functional programming at CMU',
+        'i run recitations + office hours',
+        "it's all Standard ML, proofs, recursion, work/span cost analysis, that kinda thing",
+        'honestly love it ngl'
+      ]
     },
     {
       id: 'projects',
       broad: true,
-      match: ['projects', 'project', 'portfolio', 'side project', 'personal project', 'what has she built'],
-      weak: ['built', 'build', 'show me', 'things she made', 'made'],
+      match: ['projects', 'project', 'portfolio', 'side project', 'personal project', 'what have you built', 'what has she built'],
+      weak: ['built', 'build', 'show me', 'things you made', 'made'],
       reply: [
-        "Victoria's projects span accessibility, systems, and web:",
-        '• SightBridge — CV-powered accessibility navigation app\n' +
-        '• CMUEats — dining availability PWA, 3,000+ monthly users\n' +
-        '• Music in the Neighbourhood — live nonprofit website\n' +
-        '• C0 Virtual Machine — a VM written in C\n' +
-        '• Meditite — AI-generated personalized meditation\n' +
-        '• Mini Blockchain — peer-to-peer transactions in Flask',
-        'Ask about any one and I can go deeper. The Projects app in the dock has them all too.'
+        "oh i've got a few! quick rundown:",
+        '• SightBridge: CV-powered accessibility navigation app\n' +
+        '• CMUEats: dining app, ~3k monthly users\n' +
+        '• Music in the Neighbourhood: live nonprofit site\n' +
+        '• C0 Virtual Machine: a VM written in C\n' +
+        '• Meditite: AI-generated meditation\n' +
+        '• Mini Blockchain: peer to peer transactions in Flask',
+        'which one sounds interesting?',
+        'the Projects app in the dock has em all too btw'
       ]
     },
     {
       id: 'sightbridge',
       match: ['sightbridge', 'sight bridge', 'accessibility', 'computer vision', 'opencv', 'yolo', 'object detection', 'navigation'],
-      reply:
-        'SightBridge (February 2025) is a full-stack accessibility app that uses computer vision to help visually impaired users navigate their surroundings. ' +
-        'Victoria built it with React Native and FastAPI, using OpenCV and YOLO for object detection, and integrated the Google Maps Directions API alongside OpenAI to deliver real-time navigation assistance. ' +
-        'The object detection reached a 90% accuracy rate.'
+      reply: [
+        'sightbridge!! ok so it uses computer vision to help visually impaired ppl get around',
+        'built it in React Native + FastAPI',
+        'OpenCV + YOLO for object detection (~90% accuracy), and Google Maps + OpenAI for the real time navigation',
+        'early 2025 :)'
+      ]
     },
     {
       id: 'mitn',
       match: ['music in the neighbourhood', 'music in the neighborhood', 'mitn', 'nonprofit', 'seo', 'phpmailer', 'music'],
-      reply:
-        'Music in the Neighbourhood is a live nonprofit website Victoria has designed and maintained since April 2023, showcasing the organization\'s mission, events, and media. ' +
-        'She built it from scratch in HTML, CSS, and JavaScript, and integrated PHP with PHPMailer to handle form submissions and backend functionality. ' +
-        'Her SEO work drove a 15% increase in user engagement. You can visit it at musicintheneighbourhood.com.'
+      reply: [
+        "that's a nonprofit site i've been running since 2023 :)",
+        'made it from scratch, html/css/js',
+        'PHP + PHPMailer for the forms, did the SEO too which bumped engagement ~15%',
+        "it's live at musicintheneighbourhood.com if u wanna peek!"
+      ]
     },
     {
       id: 'c0vm',
       match: ['c0vm', 'c0 vm', 'virtual machine', 'c0', 'bytecode', 'jvm', 'llvm', 'interpreter', 'compiler', 'systems'],
-      reply:
-        'The C0 Virtual Machine (April 2025) is a full-featured VM Victoria wrote in C for the C0 language, modeled after the JVM and LLVM. ' +
-        'She implemented a complete instruction set covering stack manipulation, arithmetic, control flow, static and native function calls, and heap-based memory operations. ' +
-        'It required managing runtime structures like operand stacks, call frames, and program counters to interpret C0 bytecode correctly.'
+      reply: [
+        'ok the C0 VM was so fun (and kinda pain lol)',
+        'i wrote a full virtual machine in C for the C0 language, modeled after the JVM/LLVM',
+        'did the whole instruction set, stack ops, arithmetic, control flow, function calls, heap memory, all of it'
+      ]
     },
     {
       id: 'meditite',
       match: ['meditite', 'meditation', 'cartesia', 'audio', 'mindfulness'],
-      reply:
-        'Meditite (November 2024) is a personalized meditation app that generates tailored audio experiences from user input like speed, mood, and emotion. ' +
-        'Victoria built it with React, Python, and Flask, integrating the OpenAI API and Cartesia to dynamically generate soothing meditation audio. ' +
-        'The personalization was the point — it adapts the session to how you say you are feeling.'
+      reply: [
+        "meditite's a lil meditation app!",
+        'it generates audio based on ur mood, speed, emotion, whatever u tell it',
+        'React + Python/Flask, w OpenAI + Cartesia doing the audio gen. late 2024'
+      ]
     },
     {
       id: 'blockchain',
       match: ['blockchain', 'mini blockchain', 'crypto', 'consensus', 'peer to peer', 'distributed ledger'],
-      reply:
-        'Mini Blockchain (October 2024) is a lightweight blockchain Victoria built in Python and Flask, with a Node component, enabling secure peer-to-peer transactions and data storage. ' +
-        'She implemented consensus algorithms to guarantee data integrity and prevent fraudulent activity across the network.'
+      reply: [
+        'yeah i built a mini blockchain in Python + Flask',
+        'peer to peer transactions + secure data storage',
+        'wrote the consensus algorithms too so everything stays tamper proof. oct 2024'
+      ]
     },
     {
       id: 'ai-ml',
@@ -217,12 +251,12 @@
         'llm', 'openai', 'ai projects', 'ai experience'
       ],
       reply: [
-        'Machine Learning is Victoria\'s concentration at CMU, and it runs through a lot of her work:',
-        '• SightBridge — OpenCV and YOLO for object detection at 90% accuracy\n' +
-        '• Meditite — OpenAI and Cartesia for generated meditation audio\n' +
-        '• ServiceNow — currently on the AI Control Tower team\n' +
-        '• Coursework — Human-AI Interaction, Probability',
-        'Ask about any of these for the full story.'
+        "ML's my concentration so it's in a lot of my stuff:",
+        '• SightBridge: OpenCV + YOLO, ~90% object detection accuracy\n' +
+        '• Meditite: OpenAI + Cartesia for generated audio\n' +
+        '• ServiceNow: currently on the AI Control Tower team\n' +
+        '• classes: Human-AI Interaction, Probability',
+        'wanna hear abt any of those?'
       ]
     },
     {
@@ -233,12 +267,12 @@
         'infrastructure', 'systems programming', 'scalability', 'scale'
       ],
       reply: [
-        'Backend is where Victoria spends most of her time:',
-        '• Turing — Django + REST dashboards, 4,500+ concurrent users, 30% lower latency\n' +
-        '• ScottyLabs — RESTful DiningAPI scraping 20+ sites, MongoDB review system\n' +
-        '• Wealthmeup.ai — Python scraping pipelines and automated Slack monitoring\n' +
-        '• SightBridge — FastAPI service behind the mobile app',
-        'She also built a C0 virtual machine in C, if lower-level systems work counts.'
+        "backend's my fav honestly. some highlights:",
+        '• Turing: Django + REST dashboards, 4,500+ concurrent users, ~30% less latency\n' +
+        '• ScottyLabs: RESTful DiningAPI scraping 20+ sites, MongoDB reviews\n' +
+        '• Wealthmeup: Python scraping pipelines + automated Slack monitoring\n' +
+        '• SightBridge: FastAPI service behind the app',
+        "oh and i wrote a whole virtual machine in C if we're counting low level stuff lol"
       ]
     },
     {
@@ -247,37 +281,44 @@
       match: ['frontend', 'front end', 'ui', 'ux', 'react', 'react native', 'typescript', 'web development', 'full stack', 'fullstack'],
       weak: ['design', 'website'],
       reply: [
-        "Victoria's full-stack and frontend work includes:",
-        '• CMUEats — React and TypeScript PWA, 3,000+ monthly users\n' +
-        '• SightBridge — React Native mobile app\n' +
-        '• Meditite — React frontend\n' +
-        '• Music in the Neighbourhood — responsive site from scratch in HTML/CSS/JS',
-        'This portfolio site is hers too — the whole macOS desktop is hand-built.'
+        'yeah i do full stack! frontend wise:',
+        '• CMUEats: React + TypeScript, ~3k monthly users\n' +
+        '• SightBridge: React Native app\n' +
+        '• Meditite: React\n' +
+        '• Music in the Neighbourhood: responsive site from scratch',
+        'oh and this whole site is mine too',
+        'hand built the entire macOS desktop lol 😄'
       ]
     },
     {
       id: 'hackathons',
       match: ['hackathon', 'hackathons', 'competition', 'hack', 'won', 'award', 'awards', 'prize'],
-      reply:
-        'Several of Victoria\'s projects came out of short build sprints — SightBridge, Meditite, and Mini Blockchain were each built in a matter of days. ' +
-        "I don't have a full list of her hackathon placements, though. You can contact Victoria directly to learn more."
+      reply: [
+        'a bunch of my projects were built in like a weekend',
+        'sightbridge, meditite, the blockchain one',
+        "i don't have my placements written down here tho, email me if u wanna know more!"
+      ]
     },
     {
       id: 'contact',
       match: [
         'contact', 'email', 'reach', 'get in touch', 'hire', 'hiring', 'recruit', 'connect',
-        'linkedin', 'github', 'social', 'message her', 'talk to her'
+        'linkedin', 'github', 'social', 'message you', 'talk to you'
       ],
-      reply:
-        'The quickest way is the Mail app in the dock — it sends straight to her inbox. ' +
-        'Her LinkedIn and GitHub are linked from the desktop as well, and her full resume is in the Preview app.'
+      reply: [
+        'easiest is the Mail app in the dock, goes straight to my inbox 📬',
+        'my LinkedIn + GitHub are on the desktop too',
+        "and my full resume's in the Preview app!"
+      ]
     },
     {
       id: 'resume',
       match: ['resume', 'cv', 'curriculum vitae', 'download resume', 'pdf'],
-      reply:
-        "Victoria's full resume is available in the Preview app in the dock, and you can download the PDF straight from there. " +
-        'It covers her education, technical skills, all five roles, and her projects in detail.'
+      reply: [
+        "my full resume's in the Preview app in the dock",
+        'u can grab the pdf right from there',
+        "it's got everything, school, skills, all my roles, projects"
+      ]
     },
     {
       id: 'location',
@@ -285,9 +326,11 @@
         'where', 'location', 'based', 'live', 'lives', 'from', 'vancouver', 'canada',
         'pittsburgh', 'bay area', 'relocate', 'remote'
       ],
-      reply:
-        'Victoria was born and raised in Vancouver, Canada. She studies at Carnegie Mellon in Pittsburgh, PA, and is currently interning at ServiceNow in Santa Clara, CA. ' +
-        "Her past roles have spanned Palo Alto and remote work, so she's comfortable in a range of setups."
+      reply: [
+        'i grew up in Vancouver! 🇨🇦',
+        "i'm at CMU in pittsburgh for school",
+        'and rn interning at ServiceNow in santa clara for the summer, so i move around a bit bc of school + internships lol'
+      ]
     },
     {
       id: 'availability',
@@ -295,45 +338,57 @@
         'available', 'availability', 'looking for', 'open to', 'opportunities', 'internship 2027',
         'new grad', 'full time', 'seeking', 'next role'
       ],
-      reply:
-        "Victoria graduates in May 2028 and is interning at ServiceNow through August 2026. For anything about her current availability or what she's looking for next, " +
-        'contact her directly through the Mail app — she can give you a much better answer than I can.'
+      reply: [
+        "i graduate in 2028 and i'm at ServiceNow through this august",
+        "for what i'm looking for next, honestly just email me",
+        "i'll give u a way better answer than some canned one lol"
+      ]
     },
     {
       id: 'interests',
       match: ['interests', 'hobbies', 'fun', 'passion', 'passionate', 'motivates', 'why software', 'outside of work'],
-      reply:
-        "Victoria is drawn to building things with real impact — especially tools and frameworks people rely on every day, which is why projects like CMUEats and SightBridge appeal to her. " +
-        "For anything beyond her technical work, you're better off asking her directly."
+      reply: [
+        "i'm really into building stuff ppl actually use",
+        "that's why things like CMUEats + SightBridge are my favs",
+        'for the non code stuff u should just ask me directly :)'
+      ]
     },
     {
       id: 'thanks',
       match: ['thanks', 'thank you', 'ty', 'appreciate it', 'cheers', 'awesome', 'cool', 'nice', 'great'],
-      reply: "Anytime! Ask me anything else about Victoria's work, or use the Mail app if you'd like to reach her directly."
+      reply: [
+        'ofc!! lmk if u wanna know anything else',
+        'or hit the mail app to actually reach me :)'
+      ]
     },
     {
       id: 'bye',
       match: ['bye', 'goodbye', 'see you', 'later', 'thats all', 'im done'],
-      reply: 'Thanks for stopping by! Feel free to explore the rest of the desktop — the Projects and Preview apps have plenty more. 👋'
+      reply: [
+        'thanks for stopping by!! 👋',
+        'poke around the rest of the desktop, projects + preview have more'
+      ]
     },
     {
       id: 'bot',
       match: [
         'are you real', 'real person', 'are you a bot', 'a bot', 'are you ai', 'are you human',
-        'human', 'is this chatgpt', 'chatgpt', 'are you victoria', 'chatbot', 'how do you work',
+        'human', 'is this chatgpt', 'chatgpt', 'are you actually victoria', 'chatbot', 'how do you work',
         'who made you', 'are you a person'
       ],
-      reply:
-        "I'm a scripted assistant, not a live model — Victoria wrote my answers by hand, so I only know what's on this site. " +
-        'That means I answer instantly and never make things up, but anything outside her portfolio is beyond me.'
+      reply: [
+        "haha no i'm not actually sitting here typing",
+        'this is like a lil auto-reply version of me lol',
+        "but everything i'm telling u is real! if u wanna reach the actual me the mail app's right there 📬"
+      ]
     }
   ];
 
   var SUGGESTIONS = [
-    'What projects has she built?',
-    'Tell me about her internships',
-    'What are her technical skills?',
-    'Where does she study?'
+    'what projects have you built?',
+    'tell me about your internships',
+    "what's your tech stack?",
+    'where do you study?'
   ];
 
   /* ---------- Matching ---------- */
@@ -344,8 +399,11 @@
       .replace(/\s+/g, ' ');
   }
 
-  /* Phrases beat words, and whole-word hits beat substring hits, so that
-     "ml" doesn't fire on "html" and "ta" doesn't fire on "stack". */
+  /* Every term is matched on whole-word boundaries (normalize() has already
+     turned punctuation into spaces, so the surrounding spaces are enough).
+     That keeps "ml" from firing on "html", "ta" from firing on "stack", and
+     "about you" from firing on "about your internships". Phrases score higher
+     than single words so a multi-word term wins a genuine overlap. */
   function scoreTerms(query, terms, strong) {
     var total = 0;
 
@@ -354,13 +412,7 @@
       if (!term) return;
 
       var isPhrase = term.indexOf(' ') !== -1;
-      var hit = 0;
-
-      if (query.indexOf(' ' + term + ' ') !== -1) {
-        hit = isPhrase ? 6 : 3;
-      } else if (isPhrase && query.indexOf(term) !== -1) {
-        hit = 4;
-      }
+      var hit = query.indexOf(' ' + term + ' ') !== -1 ? (isPhrase ? 6 : 3) : 0;
 
       // Weak terms contribute at most a nudge, never enough to clear the
       // threshold on their own.
@@ -386,7 +438,7 @@
       var score = scoreTopic(query, topic);
       if (score < THRESHOLD) return;
 
-      // The nudge only orders topics against each other — it is deliberately
+      // The nudge only orders topics against each other. It is deliberately
       // kept out of the threshold so a broad topic matched by a single strong
       // word still answers.
       var rank = score - (topic.broad ? 0.5 : 0);
@@ -397,7 +449,7 @@
       }
     });
 
-    if (!best) return [FALLBACK];
+    if (!best) return FALLBACK.slice();
 
     return Array.isArray(best.reply) ? best.reply : [best.reply];
   }
@@ -462,7 +514,8 @@
     }
 
     /* Replies arrive as separate bubbles with a typing pause between them,
-       so a three-part answer reads like a conversation instead of a wall. */
+       so a multi-part answer reads like someone actually texting back
+       instead of one wall of text. */
     function respond(parts, index) {
       index = index || 0;
 
@@ -525,8 +578,9 @@
       greeted = true;
       setBusy(true);
       respond([
-        "Hey! 👋 I'm Victoria's portfolio assistant.",
-        'Ask me about her projects, internships, technical skills, or coursework — or tap one of the suggestions below.'
+        'heyy!! thanks for stopping by 👋',
+        'i\'m around if u wanna know abt my projects, internships, classes, whatever',
+        'or just tap a button below lol'
       ]);
     }
 
