@@ -19,7 +19,7 @@
 
     <!-- ?v= is a cache buster: bump it whenever the CSS or JS changes so
          browsers (and GitHub Pages visitors) don't run a stale stylesheet. -->
-    <link href="css/macos.css?v=13" rel="stylesheet">
+    <link href="css/macos.css?v=20" rel="stylesheet">
 
   </head>
 
@@ -215,11 +215,18 @@
             <span class="tool-sep"></span>
             <svg viewBox="0 0 24 24"><path d="M4 6h2.5v2H4V6zm4.5 0H20v2H8.5V6zM4 11h2.5v2H4v-2zm4.5 0H20v2H8.5v-2zM4 16h2.5v2H4v-2zm4.5 0H20v2H8.5v-2z"/></svg>
             <svg class="hide-sm" viewBox="0 0 24 24"><path d="M4 5h6v6H4V5zm10 0h6v6h-6V5zM4 13h6v6H4v-6zm10 0h6v6h-6v-6z"/></svg>
-            <span class="tool-sep hide-sm"></span>
-            <svg class="hide-sm" viewBox="0 0 24 24"><path d="M17.8 3.6l2.6 2.6a1 1 0 0 1 0 1.4L10 18h-4v-4L16.4 3.6a1 1 0 0 1 1.4 0z"/></svg>
+            <span class="tool-sep"></span>
             <svg class="hide-sm" viewBox="0 0 24 24"><text x="12" y="17.5" text-anchor="middle" font-size="14" font-weight="600" font-family="-apple-system, BlinkMacSystemFont, sans-serif">Aa</text></svg>
             <svg class="hide-sm" viewBox="0 0 24 24"><path d="M3.5 6.2l1.6 1.6 2.6-2.6L6.3 3.6 3.5 6.2zm7 .3h10v2h-10v-2zM3.5 13l1.6 1.6 2.6-2.6-1.4-1.4-2.8 2.4zm7 0h10v2h-10v-2zM3.5 19.6l1.6 1.6 2.6-2.6-1.4-1.4-2.8 2.4zm7-.3h10v2h-10v-2z"/></svg>
           </div>
+
+          <button id="note-new" type="button" title="New note" aria-label="New note">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.8 3.6l2.6 2.6a1 1 0 0 1 0 1.4L10 18h-4v-4L16.4 3.6a1 1 0 0 1 1.4 0z"/></svg>
+          </button>
+
+          <button id="note-delete" type="button" title="Delete note" aria-label="Delete note">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l1 1h4v2H4V4h4l1-1zM6 7h12l-1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 7z"/></svg>
+          </button>
 
           <div class="notes-search" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M10.5 3a7.5 7.5 0 1 1-4.6 13.4l-3.2 3.2-1.4-1.4 3.2-3.2A7.5 7.5 0 0 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>
@@ -230,29 +237,29 @@
         <div class="window-body">
           <nav class="notes-list">
             <div class="notes-list-header">Notes</div>
-            <button class="note-item active" type="button">
-              <span class="note-item-title">About Me</span>
-              <span class="note-item-meta">
-                <span class="note-item-date">Jul 18</span>
-                Hi, I'm Victoria! I'm a rising junior at CMU…
-              </span>
-            </button>
+            <div id="note-list"></div>
           </nav>
 
           <article class="notes-content">
-            <div class="note-timestamp">July 18, 2026 at 6:04 PM</div>
+            <div class="note-timestamp" id="note-timestamp">July 18, 2026 at 6:04 PM</div>
 
-            <h1 class="note-title">About Me</h1>
+            <!-- The default note lives here; JS reads it once at load and
+                 hands it to the editor. Refreshing restores exactly this. -->
+            <div class="note-editor" id="note-editor" contenteditable="true"
+                 spellcheck="false" aria-label="Note body">
+              <h1 class="note-title">About Me</h1>
 
-            <p class="note-lead">Hi, I'm Victoria!</p>
+              <p class="note-lead">Hi, I'm Victoria!</p>
 
-            <p>
-              I'm a rising junior at Carnegie Mellon University studying Computer Science
-              with a concentration in Machine Learning. I was born and raised in Vancouver,
-              Canada! I'm passionate about building things with impact, especially tools and
-              frameworks that people rely on every day.
-            </p>
+              <p>
+                I'm a rising junior at Carnegie Mellon University studying Computer Science
+                with a concentration in Machine Learning. I was born and raised in Vancouver,
+                Canada! I'm passionate about building things with impact, especially tools and
+                frameworks that people rely on every day.
+              </p>
 
+              <p>Feel free to edit this note or make your own!</p>
+            </div>
           </article>
         </div>
 
@@ -592,7 +599,7 @@
       </button>
     </div>
 
-    <script src="js/macos.js?v=13"></script>
+    <script src="js/macos.js?v=20"></script>
 
   </body>
 

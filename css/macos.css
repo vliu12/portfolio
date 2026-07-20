@@ -607,6 +607,25 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Dragging feedback — app shortcuts only, not the widgets */
+.desktop-icon {
+  touch-action: none; /* let pointer drags work on touch devices */
+}
+
+.dragging {
+  cursor: grabbing;
+  opacity: 0.92;
+  transition: none;
+}
+
+/* Belt and braces with el.draggable = false: stop the browser's own
+   link/image drag from stealing the gesture. */
+.desktop-icon,
+.desktop-icon img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
 /* ============ Desktop shortcuts ============ */
 #desktop-icons {
   position: absolute;
@@ -1656,6 +1675,9 @@ body {
   font-weight: 600;
   color: #1d1d1f;
   margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .theme-notes .note-item-meta {
@@ -1687,6 +1709,47 @@ body {
   font-size: 0.6875rem;
   color: #9b9b9f;
   margin-bottom: 22px;
+}
+
+/* Editable note body */
+.note-editor {
+  outline: none;
+  cursor: text;
+  min-height: 120px;
+}
+
+.note-editor:focus {
+  outline: none;
+}
+
+/* The compose / delete buttons are real controls, unlike the rest
+   of the decorative toolbar. */
+.theme-notes .titlebar #note-new,
+.theme-notes .titlebar #note-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.theme-notes .titlebar #note-new:hover,
+.theme-notes .titlebar #note-delete:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.theme-notes .titlebar #note-new svg,
+.theme-notes .titlebar #note-delete svg {
+  width: 17px;
+  height: 17px;
+  fill: #7b7b7f;
+  display: block;
 }
 
 .theme-notes .note-title {

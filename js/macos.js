@@ -662,6 +662,252 @@
     }
   }
 
+  /* ---------- Draggable desktop items (icons + widgets) ---------- */
+  function initDesktopDragging() {
+    var desktop = document.getElementById('desktop');
+    if (!desktop) return;
+
+    // App shortcuts only — the widgets stay put where CSS places them.
+    var items = [].slice.call(document.querySelectorAll('.desktop-icon'));
+    if (!items.length) return;
+
+    var MENUBAR = 28;
+    var host = desktop.getBoundingClientRect();
+
+    // Measure every item BEFORE moving any of them. Reparenting one pulls
+    // it out of the flex column, which shifts the rest up — measuring and
+    // moving in a single pass would stack them all on the first slot.
+    var spots = items.map(function (el) {
+      var r = el.getBoundingClientRect();
+      return { left: r.left - host.left, top: r.top - host.top };
+    });
+
+    // Now apply, so no measurement is affected by an earlier move.
+    items.forEach(function (el, i) {
+      el.style.position = 'absolute';
+      el.style.left = spots[i].left + 'px';
+      el.style.top = spots[i].top + 'px';
+      el.style.margin = '0';
+      el.style.zIndex = '2';
+      desktop.appendChild(el);
+
+      // Anchors and images are natively draggable; that HTML5 drag would
+      // cancel our pointer gesture, so turn it off.
+      el.draggable = false;
+      [].forEach.call(el.querySelectorAll('img'), function (img) {
+        img.draggable = false;
+      });
+    });
+
+    items.forEach(function (el) {
+      el.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0) return;
+
+        var startX = e.clientX;
+        var startY = e.clientY;
+        var originX = parseFloat(el.style.left) || 0;
+        var originY = parseFloat(el.style.top) || 0;
+        var moved = false;
+
+        el.setPointerCapture(e.pointerId);
+        el.style.zIndex = '3';
+
+        function onMove(ev) {
+          var dx = ev.clientX - startX;
+          var dy = ev.clientY - startY;
+
+          // A few pixels of slop so a normal click still counts as a click.
+          if (!moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+            moved = true;
+            el.classList.add('dragging');
+          }
+          if (!moved) return;
+
+          var maxX = desktop.clientWidth - el.offsetWidth;
+          var maxY = desktop.clientHeight - el.offsetHeight;
+
+          el.style.left = Math.min(Math.max(originX + dx, 0), Math.max(0, maxX)) + 'px';
+          el.style.top =
+            Math.min(Math.max(originY + dy, MENUBAR), Math.max(MENUBAR, maxY)) + 'px';
+        }
+
+        function onUp(ev) {
+          el.removeEventListener('pointermove', onMove);
+          el.removeEventListener('pointerup', onUp);
+          el.removeEventListener('pointercancel', onUp);
+          if (el.hasPointerCapture && el.hasPointerCapture(ev.pointerId)) {
+            el.releasePointerCapture(ev.pointerId);
+          }
+
+          el.classList.remove('dragging');
+          el.style.zIndex = '2';
+
+          // A drag ends with a click event; swallow it so dragging an icon
+          // doesn't also open its link.
+          if (moved) {
+            el.addEventListener('click', function swallow(cev) {
+              cev.preventDefault();
+              cev.stopPropagation();
+              el.removeEventListener('click', swallow, true);
+            }, true);
+          }
+        }
+
+        el.addEventListener('pointermove', onMove);
+        el.addEventListener('pointerup', onUp);
+        el.addEventListener('pointercancel', onUp);
+      });
+    });
+  }
+
+  /* ---------- Notes app (editable, in-memory only) ---------- */
+  function initNotesApp() {
+    var editor = document.getElementById('note-editor');
+    var list = document.getElementById('note-list');
+    if (!editor || !list) return;
+
+    var newBtn = document.getElementById('note-new');
+    var delBtn = document.getElementById('note-delete');
+    var stamp = document.getElementById('note-timestamp');
+
+    // Nothing is persisted: reloading the page rebuilds this from the HTML,
+    // so visitors can type freely without changing what anyone else sees.
+    var notes = [
+      {
+        id: 1,
+        html: editor.innerHTML,
+        date: 'Jul 18',
+        stamp: stamp ? stamp.textContent : ''
+      }
+    ];
+    var nextId = 2;
+    var activeId = 1;
+
+    function byId(id) {
+      for (var i = 0; i < notes.length; i++) {
+        if (notes[i].id === id) return notes[i];
+      }
+      return null;
+    }
+
+    // Titles come from the first non-empty line, the way Notes does it.
+    function summarise(html) {
+      var probe = document.createElement('div');
+      probe.innerHTML = html;
+
+      // Each block child counts as one line. textContent alone would run
+      // them together ("IdeasTry clicking...") since it inserts no breaks.
+      var lines = [];
+      [].forEach.call(probe.children, function (el) {
+        var t = (el.textContent || '').replace(/ /g, ' ').trim();
+        if (t) lines.push(t);
+      });
+
+      // Plain text with no block wrappers (e.g. select-all then retype).
+      if (!lines.length) {
+        var flat = (probe.textContent || '').replace(/ /g, ' ').trim();
+        if (flat) lines.push(flat);
+      }
+
+      return {
+        title: lines[0] || 'New Note',
+        preview: lines.slice(1).join(' ').slice(0, 60) || 'No additional text'
+      };
+    }
+
+    function renderList() {
+      list.innerHTML = '';
+
+      notes.forEach(function (note) {
+        var s = summarise(note.html);
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'note-item' + (note.id === activeId ? ' active' : '');
+        btn.innerHTML =
+          '<span class="note-item-title"></span>' +
+          '<span class="note-item-meta"><span class="note-item-date"></span> </span>';
+        btn.querySelector('.note-item-title').textContent = s.title;
+        btn.querySelector('.note-item-date').textContent = note.date;
+        btn.querySelector('.note-item-meta').appendChild(
+          document.createTextNode(s.preview)
+        );
+
+        btn.addEventListener('click', function () {
+          if (note.id === activeId) return;
+          save();
+          activeId = note.id;
+          load();
+        });
+
+        list.appendChild(btn);
+      });
+    }
+
+    function save() {
+      var note = byId(activeId);
+      if (note) note.html = editor.innerHTML;
+    }
+
+    function load() {
+      var note = byId(activeId);
+      if (!note) return;
+      editor.innerHTML = note.html;
+      if (stamp) stamp.textContent = note.stamp;
+      renderList();
+    }
+
+    // Typing updates the sidebar title/preview live.
+    editor.addEventListener('input', function () {
+      save();
+      renderList();
+    });
+
+    if (newBtn) {
+      newBtn.addEventListener('click', function () {
+        save();
+
+        var now = new Date();
+        var note = {
+          id: nextId++,
+          html: '<h1 class="note-title">New Note</h1><p><br></p>',
+          date: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          stamp: now.toLocaleDateString('en-US', {
+            month: 'long', day: 'numeric', year: 'numeric'
+          }) + ' at ' + now.toLocaleTimeString('en-US', {
+            hour: 'numeric', minute: '2-digit'
+          })
+        };
+
+        notes.unshift(note);
+        activeId = note.id;
+        load();
+
+        // Drop the caret at the end of the title so typing renames it.
+        editor.focus();
+        var title = editor.querySelector('.note-title');
+        if (title && window.getSelection) {
+          var range = document.createRange();
+          range.selectNodeContents(title);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      });
+    }
+
+    if (delBtn) {
+      delBtn.addEventListener('click', function () {
+        if (notes.length <= 1) return; // never leave an empty app
+        var i = notes.indexOf(byId(activeId));
+        notes.splice(i, 1);
+        activeId = notes[Math.min(i, notes.length - 1)].id;
+        load();
+      });
+    }
+
+    renderList();
+  }
+
   /* ---------- Projects app ---------- */
   function renderProject(project) {
     var detail = document.getElementById('project-detail');
@@ -881,6 +1127,8 @@
     initWorldClock();
     initAppleMenu();
     initLocationPanel();
+    initDesktopDragging();
+    initNotesApp();
     initProjectsApp();
     initMailApp();
     initAppLinks();
