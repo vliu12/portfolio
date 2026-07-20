@@ -654,7 +654,7 @@
       // Cascade the windows rather than centring them all on top of
       // each other. Notes is the narrowest, so centring alone would
       // leave it nearly flush with Projects.
-      var CASCADE = { notes: 0, about: 15, preview: 30, mail: 45, projects: 60 };
+      var CASCADE = { notes: 0, about: 15, preview: 30, mail: 45, pages: 52, projects: 60 };
       var nudge = CASCADE[win.dataset.app] || 0;
 
       win.style.left = Math.max(12, (window.innerWidth - w) / 2 + nudge) + 'px';

@@ -963,6 +963,162 @@ body {
   color: #86868b;
 }
 
+/* ============ Pages (document app) ============ */
+.theme-pages {
+  --pg-ink: #1d1d1f;
+  --pg-grey: #5b5b5f;
+  background: #b8b8bc;
+  border-color: rgba(0, 0, 0, 0.18);
+  color: var(--pg-ink);
+}
+
+.theme-pages .titlebar {
+  height: 52px;
+  background: linear-gradient(180deg, #f6f6f6 0%, #ececec 100%);
+  border-bottom: 1px solid #cfcfcf;
+  padding: 0 12px;
+  gap: 14px;
+}
+
+.theme-pages .traffic button svg {
+  stroke: rgba(0, 0, 0, 0.55);
+}
+
+.pg-tools {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-left: 6px;
+}
+
+.pg-tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  color: var(--pg-grey);
+}
+
+.pg-tool svg {
+  width: 19px;
+  height: 19px;
+  fill: var(--pg-grey);
+}
+
+.pg-tool i {
+  font-style: normal;
+  font-size: 0.5625rem;
+  letter-spacing: 0.01em;
+}
+
+.pg-sep {
+  width: 1px;
+  height: 26px;
+  background: #cdcdcd;
+  margin-top: 2px;
+}
+
+.pg-right {
+  display: flex;
+  gap: 7px;
+}
+
+.pg-pill {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--pg-grey);
+  background: #e2e2e4;
+  border: 1px solid #d2d2d4;
+  border-radius: 6px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+/* Grey work area with the document floating on it */
+.pages-canvas {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: #b8b8bc;
+  padding: 26px 0 40px;
+  display: flex;
+  justify-content: center;
+  user-select: text;
+  /* Reserve gutters on both sides so the scrollbar doesn't shove the
+     page off-centre when the document is long enough to scroll. */
+  scrollbar-gutter: stable both-edges;
+}
+
+.pages-sheet {
+  width: min(612px, calc(100% - 48px));
+  flex-shrink: 0;
+  align-self: flex-start;
+  background: #fff;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.3);
+  padding: 62px 68px 72px;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--pg-ink);
+}
+
+.ps-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 2px;
+}
+
+.ps-sub {
+  font-size: 0.8125rem;
+  color: #86868b;
+  margin: 0 0 26px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e4e4e6;
+}
+
+.ps-entry {
+  margin-bottom: 22px;
+}
+
+.ps-entry:last-child {
+  margin-bottom: 0;
+}
+
+.ps-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.ps-role {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.ps-date {
+  font-size: 0.75rem;
+  color: #86868b;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ps-org {
+  font-size: 0.8125rem;
+  color: #6e6e73;
+  font-style: italic;
+  margin-bottom: 6px;
+}
+
+.pages-sheet ul {
+  margin: 0;
+  padding-left: 17px;
+}
+
+.pages-sheet li {
+  margin-bottom: 4px;
+}
+
 /* ---- Preview: PDF viewer ---- */
 .titlebar-spacer {
   flex: 1;
@@ -1419,6 +1575,16 @@ body {
 
 .dock-app .icon.mail {
   background: linear-gradient(160deg, #55c1ff 0%, #1a7fe8 100%);
+}
+
+.dock-app .icon.pages {
+  background: linear-gradient(160deg, #ffb340 0%, #f08a1c 100%);
+}
+
+.dock-app .icon.pages svg {
+  width: 34px;
+  height: 34px;
+  fill: #fff;
 }
 
 /* Notes: yellow header strip over lined white paper. */
