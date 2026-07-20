@@ -373,6 +373,137 @@ body {
   line-height: 1.4;
 }
 
+/* ============ Now playing widget ============ */
+#now-playing {
+  position: absolute;
+  top: 38px;
+  left: 20px;
+  z-index: 1; /* above the wallpaper scrim, below any window */
+  display: flex;
+  gap: 12px;
+  width: 296px;
+  padding: 12px;
+  border-radius: 16px;
+  text-decoration: none;
+  color: #f5f5f7;
+  background: rgba(28, 28, 30, 0.55);
+  backdrop-filter: saturate(180%) blur(22px);
+  -webkit-backdrop-filter: saturate(180%) blur(22px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
+  transition: background-color 0.16s ease, transform 0.16s ease;
+}
+
+#now-playing:hover {
+  background: rgba(28, 28, 30, 0.68);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.np-art {
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(150deg, #1db954 0%, #0d7a37 100%);
+}
+
+.np-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.np-art-fallback {
+  width: 28px;
+  height: 28px;
+  fill: rgba(255, 255, 255, 0.9);
+}
+
+.np-art img:not([hidden]) + .np-art-fallback {
+  display: none;
+}
+
+.np-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.np-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 3px;
+}
+
+.np-logo {
+  width: 13px;
+  height: 13px;
+  fill: #1db954;
+  flex-shrink: 0;
+}
+
+.np-status {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 247, 0.62);
+}
+
+.np-title,
+.np-artist {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.np-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.np-artist {
+  font-size: 0.75rem;
+  color: rgba(245, 245, 247, 0.66);
+  line-height: 1.35;
+  margin-bottom: 7px;
+}
+
+.np-bar {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+
+.np-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  background: #f5f5f7;
+}
+
+.np-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.5625rem;
+  color: rgba(245, 245, 247, 0.5);
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ============ Desktop shortcuts ============ */
 #desktop-icons {
   position: absolute;

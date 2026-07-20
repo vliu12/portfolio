@@ -21,6 +21,36 @@
      Until MAIL_ENDPOINT is set, Send falls back to opening the
      visitor's own mail client with the message pre-filled.
      ===================================================== */
+  /* =====================================================
+     NOW PLAYING — the Spotify widget, top-left.
+
+     A static site can't call the Spotify API directly (it needs OAuth,
+     and any token shipped here would be public and expire), so the
+     widget shows FALLBACK below until you point it at a live feed.
+
+     To go live, set LANYARD_ID to your Discord user ID:
+       1. Connect Spotify to Discord (Settings > Connections)
+       2. Join https://discord.gg/lanyard  (this is what makes your
+          presence readable — it's the same data Discord shows)
+       3. Paste your Discord user ID below.
+     The widget then polls your real current track and falls back to
+     FALLBACK whenever you're not playing anything.
+     ===================================================== */
+  var LANYARD_ID = '';
+  var NOW_PLAYING_POLL_MS = 30000;
+
+  // Shown when nothing live is available. Swap in whatever you like.
+  // The progress bar sits still here — it only advances for a live track.
+  var FALLBACK_TRACK = {
+    title: 'Sundress',
+    artist: 'A$AP Rocky',
+    url: 'https://open.spotify.com/track/2aPTvyE09vUCRwVvj0I8WK',
+    art: 'img/np-sundress.jpg',
+    status: 'Listening on Spotify',
+    elapsedMs: 47000,
+    durationMs: 158000 // 2:38
+  };
+
   var MAIL_ENDPOINT = 'https://api.web3forms.com/submit';
   var MAIL_ACCESS_KEY = '60015dc0-b6a8-43fc-9153-90b29b8a3aa3';
   var MAIL_TO = 'victoriahliu2@gmail.com';
@@ -135,6 +165,119 @@
     tick();
     setInterval(tick, 10000);
     window.addEventListener('resize', tick);
+  }
+
+  /* ---------- Now playing widget ---------- */
+  function initNowPlaying() {
+    var card = document.getElementById('now-playing');
+    if (!card) return;
+
+    var els = {
+      art: document.getElementById('np-art-img'),
+      status: document.getElementById('np-status'),
+      title: document.getElementById('np-title'),
+      artist: document.getElementById('np-artist'),
+      fill: document.getElementById('np-fill'),
+      elapsed: document.getElementById('np-elapsed'),
+      total: document.getElementById('np-total')
+    };
+
+    var current = null;   // the track being shown
+    var ticker = null;    // interval that advances the progress bar
+
+    function mmss(ms) {
+      if (!ms || ms < 0) return '0:00';
+      var s = Math.floor(ms / 1000);
+      return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    function paint(track, elapsedMs) {
+      els.title.textContent = track.title;
+      els.artist.textContent = track.artist;
+      els.status.textContent = track.status || 'Listening on Spotify';
+      card.href = track.url || 'https://open.spotify.com/';
+
+      if (track.art) {
+        els.art.src = track.art;
+        els.art.hidden = false;
+      } else {
+        els.art.hidden = true;
+        els.art.removeAttribute('src');
+      }
+
+      var dur = track.durationMs || 0;
+      var at = Math.min(Math.max(elapsedMs || 0, 0), dur);
+      els.fill.style.width = dur ? (at / dur) * 100 + '%' : '0%';
+      els.elapsed.textContent = mmss(at);
+      els.total.textContent = mmss(dur);
+      els.times = null;
+    }
+
+    function show(track) {
+      current = track;
+      if (ticker) {
+        clearInterval(ticker);
+        ticker = null;
+      }
+
+      paint(track, track.elapsedMs);
+
+      // Only a live track has a real start time worth advancing.
+      if (track.startedAt && track.durationMs) {
+        ticker = setInterval(function () {
+          var at = Date.now() - track.startedAt;
+          if (at >= track.durationMs) {
+            clearInterval(ticker);
+            ticker = null;
+            return;
+          }
+          paint(track, at);
+        }, 1000);
+      }
+    }
+
+    function fetchLive() {
+      if (!LANYARD_ID) return;
+
+      fetch('https://api.lanyard.rest/v1/users/' + LANYARD_ID)
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (payload) {
+          var s = payload && payload.data && payload.data.spotify;
+          if (!s) {
+            show(FALLBACK_TRACK); // not playing anything
+            return;
+          }
+          show({
+            title: s.song,
+            artist: s.artist,
+            art: s.album_art_url,
+            url: s.track_id
+              ? 'https://open.spotify.com/track/' + s.track_id
+              : 'https://open.spotify.com/',
+            status: 'Listening on Spotify',
+            startedAt: s.timestamps && s.timestamps.start,
+            durationMs:
+              s.timestamps && s.timestamps.end
+                ? s.timestamps.end - s.timestamps.start
+                : 0,
+            elapsedMs:
+              s.timestamps && s.timestamps.start
+                ? Date.now() - s.timestamps.start
+                : 0
+          });
+        })
+        .catch(function () {
+          // Network down or Lanyard unreachable: keep whatever is shown.
+          if (!current) show(FALLBACK_TRACK);
+        });
+    }
+
+    show(FALLBACK_TRACK); // paint something immediately
+    fetchLive();
+    if (LANYARD_ID) setInterval(fetchLive, NOW_PLAYING_POLL_MS);
   }
 
   /* ---------- Apple menu ---------- */
@@ -629,6 +772,7 @@
   /* ---------- Boot ---------- */
   document.addEventListener('DOMContentLoaded', function () {
     startClock();
+    initNowPlaying();
     initAppleMenu();
     initLocationPanel();
     initProjectsApp();
