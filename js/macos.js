@@ -4,6 +4,27 @@
 (function () {
   'use strict';
 
+  /* =====================================================
+     MAIL SETUP — one line to make the contact form send.
+
+     A static site can't deliver email on its own, so the Send button
+     needs a form endpoint. Pick either service, paste the value below,
+     and in-page sending starts working immediately:
+
+       Formspree   https://formspree.io  → create a form, paste its URL
+                   e.g. MAIL_ENDPOINT = 'https://formspree.io/f/abcdwxyz';
+
+       Web3Forms   https://web3forms.com → enter your email, get a key
+                   MAIL_ENDPOINT   = 'https://api.web3forms.com/submit';
+                   MAIL_ACCESS_KEY = 'your-access-key';
+
+     Until MAIL_ENDPOINT is set, Send falls back to opening the
+     visitor's own mail client with the message pre-filled.
+     ===================================================== */
+  var MAIL_ENDPOINT = 'https://api.web3forms.com/submit';
+  var MAIL_ACCESS_KEY = '60015dc0-b6a8-43fc-9153-90b29b8a3aa3';
+  var MAIL_TO = 'victoriahliu2@gmail.com';
+
   /* ---------- Project data ---------- */
   var PROJECTS = [
     {
@@ -367,6 +388,123 @@
     renderProject(PROJECTS[0]);
   }
 
+  /* ---------- Mail app ---------- */
+  function initMailApp() {
+    var form = document.getElementById('mail-form');
+    if (!form) return;
+
+    var status = document.getElementById('mail-status');
+    var sendBtn = form.querySelector('.mail-send');
+    var from = document.getElementById('mail-from');
+    var subject = document.getElementById('mail-subject');
+    var message = document.getElementById('mail-message');
+    var honeypot = form.querySelector('.mail-hp');
+
+    function setStatus(text, kind) {
+      status.textContent = text;
+      status.className = 'mail-status' + (kind ? ' ' + kind : '');
+    }
+
+    function markInvalid(field, bad) {
+      var target = field === message ? field : field.closest('.mail-field');
+      target.classList.toggle('invalid', bad);
+    }
+
+    // Trash icon behaves like Gmail's: discard the draft and close.
+    var discard = form.querySelector('.mail-discard');
+    if (discard) {
+      discard.addEventListener('click', function () {
+        form.reset();
+        setStatus('');
+        [from, subject, message].forEach(function (f) {
+          markInvalid(f, false);
+        });
+        closeWindow(document.querySelector('.window[data-app="mail"]'));
+      });
+    }
+
+    // Clear the error styling as soon as someone starts fixing the field.
+    [from, subject, message].forEach(function (field) {
+      field.addEventListener('input', function () {
+        markInvalid(field, false);
+      });
+    });
+
+    function validate() {
+      var okFrom = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(from.value.trim());
+      var okSubject = subject.value.trim().length > 0;
+      var okMessage = message.value.trim().length > 0;
+
+      markInvalid(from, !okFrom);
+      markInvalid(subject, !okSubject);
+      markInvalid(message, !okMessage);
+
+      if (!okFrom) return 'Please enter a valid email address so I can reply.';
+      if (!okSubject) return 'Please add a subject.';
+      if (!okMessage) return 'Please write a message.';
+      return null;
+    }
+
+    // No endpoint configured yet: hand off to the visitor's mail client
+    // with everything pre-filled, rather than silently failing.
+    function mailtoFallback() {
+      var body = message.value.trim() + '\n\n— ' + from.value.trim();
+      var href =
+        'mailto:' + MAIL_TO +
+        '?subject=' + encodeURIComponent(subject.value.trim()) +
+        '&body=' + encodeURIComponent(body);
+
+      window.location.href = href;
+      setStatus('Opening your mail app…');
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      if (honeypot && honeypot.value) return; // bot
+      var problem = validate();
+      if (problem) {
+        setStatus(problem, 'error');
+        return;
+      }
+
+      if (!MAIL_ENDPOINT) {
+        mailtoFallback();
+        return;
+      }
+
+      var payload = {
+        email: from.value.trim(),
+        subject: subject.value.trim(),
+        message: message.value.trim(),
+        // So hitting Reply in the inbox goes back to the sender.
+        replyto: from.value.trim(),
+        from_name: 'Portfolio contact form'
+      };
+      if (MAIL_ACCESS_KEY) payload.access_key = MAIL_ACCESS_KEY;
+
+      sendBtn.disabled = true;
+      setStatus('Sending…');
+
+      fetch(MAIL_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          form.reset();
+          setStatus('Sent — thanks! I\'ll get back to you soon.', 'success');
+        })
+        .catch(function () {
+          setStatus('Couldn\'t send just now. Please email ' + MAIL_TO + ' directly.', 'error');
+        })
+        .then(function () {
+          sendBtn.disabled = false;
+        });
+    });
+  }
+
   /* ---------- Links that open an app window ---------- */
   function initAppLinks() {
     document.querySelectorAll('a[data-opens]').forEach(function (link) {
@@ -414,6 +552,7 @@
     startClock();
     initLocationPanel();
     initProjectsApp();
+    initMailApp();
     initAppLinks();
     initDock();
 
@@ -435,7 +574,7 @@
       // Cascade the windows rather than centring them all on top of
       // each other. Notes is the narrowest, so centring alone would
       // leave it nearly flush with Projects.
-      var CASCADE = { notes: 0, preview: 30, projects: 60 };
+      var CASCADE = { notes: 0, preview: 30, mail: 45, projects: 60 };
       var nudge = CASCADE[win.dataset.app] || 0;
 
       win.style.left = Math.max(12, (window.innerWidth - w) / 2 + nudge) + 'px';
