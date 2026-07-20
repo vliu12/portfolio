@@ -19,7 +19,7 @@
 
     <!-- ?v= is a cache buster: bump it whenever the CSS or JS changes so
          browsers (and GitHub Pages visitors) don't run a stale stylesheet. -->
-    <link href="css/macos.css?v=5" rel="stylesheet">
+    <link href="css/macos.css?v=7" rel="stylesheet">
 
   </head>
 
@@ -141,6 +141,25 @@
 
     <!-- ============ Desktop ============ -->
     <div id="desktop">
+
+      <!-- ---------- Desktop shortcuts ---------- -->
+      <div id="desktop-icons">
+        <a class="desktop-icon" href="https://www.cs.cmu.edu/~15150/staff.html"
+           target="_blank" rel="noopener" title="15-150 course staff">
+          <span class="di-glyph">
+            <img src="img/scs-dragon.png" alt="" aria-hidden="true">
+          </span>
+          <span class="di-label">150</span>
+        </a>
+
+        <a class="desktop-icon" href="https://www.andrew.cmu.edu/user/ultimate/mmellons/roster.html"
+           target="_blank" rel="noopener" title="CMU Money Mellons roster">
+          <span class="di-glyph">
+            <img src="img/money-mellons.png" alt="" aria-hidden="true">
+          </span>
+          <span class="di-label">Money Mellons</span>
+        </a>
+      </div>
 
       <!-- ---------- Notes (light theme) ---------- -->
       <div class="window theme-notes" data-app="notes" style="width: 780px; height: 452px;" hidden>
@@ -424,7 +443,7 @@
       </button>
     </div>
 
-    <script src="js/macos.js?v=5"></script>
+    <script src="js/macos.js?v=7"></script>
 
   </body>
 

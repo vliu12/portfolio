@@ -373,6 +373,68 @@ body {
   line-height: 1.4;
 }
 
+/* ============ Desktop shortcuts ============ */
+#desktop-icons {
+  position: absolute;
+  top: 38px;
+  right: 20px;
+  z-index: 1; /* above the wallpaper scrim, below any window */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 84px;
+  padding: 6px 4px 5px;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: default;
+  transition: background-color 0.12s ease;
+}
+
+.desktop-icon:hover {
+  background: rgba(255, 255, 255, 0.18);
+  text-decoration: none;
+}
+
+.desktop-icon:active {
+  background: rgba(10, 132, 255, 0.42);
+}
+
+/* No tile — the dragon sits straight on the wallpaper. */
+.di-glyph {
+  width: 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.di-glyph img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  /* Keeps the dark red readable wherever the wallpaper goes dark. */
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.45));
+}
+
+.di-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  line-height: 1.25;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75), 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
 /* ============ Window ============ */
 .window {
   position: absolute;
