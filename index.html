@@ -19,7 +19,7 @@
 
     <!-- ?v= is a cache buster: bump it whenever the CSS or JS changes so
          browsers (and GitHub Pages visitors) don't run a stale stylesheet. -->
-    <link href="css/macos.css?v=20" rel="stylesheet">
+    <link href="css/macos.css?v=21" rel="stylesheet">
 
   </head>
 
@@ -135,7 +135,7 @@
 
       <div class="cc-card cc-note">
         <span class="cc-label">Currently</span>
-        <span class="cc-note-text">Summer on ServiceNow's AI&nbsp;Discovery team</span>
+        <span class="cc-note-text">Summer on ServiceNow's AI&nbsp;Control&nbsp;Tower team</span>
       </div>
     </div>
 
@@ -551,6 +551,78 @@
         <div class="resize-handle"></div>
       </div>
 
+      <!-- ---------- Messages (light theme) ---------- -->
+      <div class="window theme-messages" data-app="messages" style="width: 720px; height: 560px;" hidden>
+        <div class="titlebar">
+          <div class="traffic">
+            <button class="close" type="button" aria-label="Close">
+              <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1.5 1.5l5 5M6.5 1.5l-5 5"/></svg>
+            </button>
+            <button class="minimize" type="button" aria-label="Minimize">
+              <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1.2 4h5.6"/></svg>
+            </button>
+            <button class="zoom" type="button" aria-label="Zoom">
+              <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1.5 1.5h5v5h-5z"/></svg>
+            </button>
+          </div>
+
+          <div class="msg-titlebar-contact">
+            <img class="msg-avatar sm" src="img/profile.jpg" alt="">
+            <span class="msg-titlebar-name">Victoria Liu</span>
+          </div>
+
+          <span class="titlebar-spacer"></span>
+
+          <div class="msg-tools" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M15 6.5H4.5A1.5 1.5 0 0 0 3 8v8a1.5 1.5 0 0 0 1.5 1.5H15A1.5 1.5 0 0 0 16.5 16V8A1.5 1.5 0 0 0 15 6.5zM18 10.2l3.2-2.3a.5.5 0 0 1 .8.4v7.4a.5.5 0 0 1-.8.4L18 13.8v-3.6z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 2.5a5.2 5.2 0 0 0-5.2 5.2v6.6h-.6a2.2 2.2 0 0 1 0-4.4h.2V8.4h-.2a3.9 3.9 0 0 0-.2 7.8v.3A1.5 1.5 0 0 0 7.5 18h1.2v-1.3H7.9V7.7a4.1 4.1 0 0 1 8.2 0v9h-.8V18h1.2a1.5 1.5 0 0 0 1.5-1.5v-.3a3.9 3.9 0 0 0-.2-7.8h-.2v1.5h.2a2.2 2.2 0 0 1 0 4.4h-.6V7.7A5.2 5.2 0 0 0 12 2.5z"/></svg>
+          </div>
+        </div>
+
+        <div class="window-body">
+          <nav class="msg-list">
+            <div class="msg-search" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M10.5 3a7.5 7.5 0 1 1-4.6 13.4l-3.2 3.2-1.4-1.4 3.2-3.2A7.5 7.5 0 0 1 10.5 3zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11z"/></svg>
+              <span>Search</span>
+            </div>
+
+            <button class="msg-thread active" type="button">
+              <img class="msg-avatar" src="img/profile.jpg" alt="">
+              <span class="msg-thread-text">
+                <span class="msg-thread-top">
+                  <span class="msg-thread-name">Victoria Liu</span>
+                  <span class="msg-thread-time" id="msg-thread-time"></span>
+                </span>
+                <span class="msg-thread-preview" id="msg-thread-preview">Ask me about my work!</span>
+              </span>
+            </button>
+          </nav>
+
+          <div class="msg-conversation">
+            <div class="msg-scroll" id="msg-scroll" role="log" aria-live="polite" aria-label="Conversation with Victoria's assistant">
+              <div class="msg-intro">
+                <img class="msg-avatar lg" src="img/profile.jpg" alt="">
+                <div class="msg-intro-name">Victoria Liu</div>
+                <div class="msg-intro-sub">Portfolio assistant &middot; ask about projects, skills, or experience</div>
+              </div>
+              <div id="msg-thread-body"></div>
+            </div>
+
+            <div class="msg-suggestions" id="msg-suggestions"></div>
+
+            <form class="msg-composer" id="msg-composer" autocomplete="off">
+              <label class="sr-only" for="msg-input">Message</label>
+              <input class="msg-input" id="msg-input" type="text" placeholder="iMessage" maxlength="300">
+              <button class="msg-send" id="msg-send" type="submit" aria-label="Send" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l6.2 6.2-1.4 1.4-3.8-3.8V20h-2V7.4l-3.8 3.8-1.4-1.4L12 3.6z"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="resize-handle"></div>
+      </div>
+
     </div>
 
     <!-- ============ Dock ============ -->
@@ -560,6 +632,16 @@
         <span class="icon mail">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 5.5h18a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1zm.9 2L12 13l8.1-5.5H3.9z"/>
+          </svg>
+        </span>
+        <span class="dot"></span>
+      </button>
+
+      <button class="dock-app" data-app="messages" type="button" aria-label="Messages">
+        <span class="tooltip">Messages</span>
+        <span class="icon messages">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3.2c5.1 0 9.2 3.4 9.2 7.6s-4.1 7.6-9.2 7.6a11 11 0 0 1-2.6-.3c-1 .7-2.6 1.6-4.3 1.8-.3 0-.5-.2-.4-.5.3-.6.8-1.7 1-2.8-1.8-1.4-2.9-3.4-2.9-5.8 0-4.2 4.1-7.6 9.2-7.6z"/>
           </svg>
         </span>
         <span class="dot"></span>
@@ -599,7 +681,8 @@
       </button>
     </div>
 
-    <script src="js/macos.js?v=20"></script>
+    <script src="js/macos.js?v=21"></script>
+    <script src="js/messages.js?v=1"></script>
 
   </body>
 
