@@ -19,7 +19,7 @@
 
     <!-- ?v= is a cache buster: bump it whenever the CSS or JS changes so
          browsers (and GitHub Pages visitors) don't run a stale stylesheet. -->
-    <link href="css/macos.css?v=11" rel="stylesheet">
+    <link href="css/macos.css?v=13" rel="stylesheet">
 
   </head>
 
@@ -142,7 +142,9 @@
     <!-- ============ Desktop ============ -->
     <div id="desktop">
 
-      <!-- ---------- Now playing widget ---------- -->
+      <!-- ---------- Desktop widgets ---------- -->
+      <div id="desktop-widgets">
+
       <a id="now-playing" href="https://open.spotify.com/" target="_blank" rel="noopener">
         <span class="np-art">
           <img id="np-art-img" src="" alt="" hidden>
@@ -167,6 +169,12 @@
           </span>
         </span>
       </a>
+
+      <section id="world-clock" aria-label="World clock">
+        <div class="wc-grid" id="wc-grid"></div>
+      </section>
+
+      </div>
 
       <!-- ---------- Desktop shortcuts ---------- -->
       <div id="desktop-icons">
@@ -584,7 +592,7 @@
       </button>
     </div>
 
-    <script src="js/macos.js?v=11"></script>
+    <script src="js/macos.js?v=13"></script>
 
   </body>
 

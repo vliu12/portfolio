@@ -167,6 +167,111 @@
     window.addEventListener('resize', tick);
   }
 
+  /* ---------- World clock ---------- */
+  var WORLD_CLOCKS = [
+    { city: 'Vancouver', tz: 'America/Vancouver' },
+    { city: 'Pittsburgh', tz: 'America/New_York' },
+    { city: 'San Francisco', tz: 'America/Los_Angeles' },
+    { city: 'Dalian', tz: 'Asia/Shanghai' }
+  ];
+
+  // Read a zone's own wall-clock reading, rather than shifting by a fixed
+  // offset — this stays correct across daylight saving on both ends.
+  function wallClock(date, tz) {
+    var parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    }).formatToParts(date);
+
+    var v = {};
+    parts.forEach(function (p) {
+      if (p.type !== 'literal') v[p.type] = parseInt(p.value, 10);
+    });
+    return v;
+  }
+
+  function initWorldClock() {
+    var grid = document.getElementById('wc-grid');
+    if (!grid) return;
+
+    // Build the faces once; only the hands and labels change per tick.
+    WORLD_CLOCKS.forEach(function (c) {
+      var ticks = '';
+      for (var i = 0; i < 12; i++) {
+        var a = (i * 30 * Math.PI) / 180;
+        var outer = 44;
+        var inner = i % 3 === 0 ? 36 : 39;
+        ticks +=
+          '<line class="wc-tick' + (i % 3 === 0 ? ' major' : '') + '"' +
+          ' x1="' + (50 + outer * Math.sin(a)).toFixed(1) + '"' +
+          ' y1="' + (50 - outer * Math.cos(a)).toFixed(1) + '"' +
+          ' x2="' + (50 + inner * Math.sin(a)).toFixed(1) + '"' +
+          ' y2="' + (50 - inner * Math.cos(a)).toFixed(1) + '"/>';
+      }
+
+      var el = document.createElement('div');
+      el.className = 'wc-clock';
+      el.dataset.tz = c.tz;
+      el.innerHTML =
+        '<svg class="wc-face" viewBox="0 0 100 100" aria-hidden="true">' +
+        '<circle class="wc-dial" cx="50" cy="50" r="48"/>' + ticks +
+        '<line class="wc-hand wc-hour" x1="50" y1="50" x2="50" y2="26"/>' +
+        '<line class="wc-hand wc-min" x1="50" y1="50" x2="50" y2="16"/>' +
+        '<line class="wc-sec" x1="50" y1="56" x2="50" y2="14"/>' +
+        '<circle class="wc-pin" cx="50" cy="50" r="4"/>' +
+        '</svg>' +
+        '<div class="wc-city" title="' + c.city + '">' + c.city + '</div>' +
+        '<div class="wc-day"></div>' +
+        '<div class="wc-off"></div>';
+      grid.appendChild(el);
+    });
+
+    var clocks = [].slice.call(grid.querySelectorAll('.wc-clock'));
+
+    function tick() {
+      var now = new Date();
+      var here = wallClock(now, Intl.DateTimeFormat().resolvedOptions().timeZone);
+      var hereUTC = Date.UTC(here.year, here.month - 1, here.day, here.hour, here.minute);
+
+      clocks.forEach(function (el) {
+        var t = wallClock(now, el.dataset.tz);
+
+        var sec = t.second * 6;
+        var min = t.minute * 6 + t.second * 0.1;
+        var hour = (t.hour % 12) * 30 + t.minute * 0.5;
+
+        el.querySelector('.wc-hour').style.transform = 'rotate(' + hour + 'deg)';
+        el.querySelector('.wc-min').style.transform = 'rotate(' + min + 'deg)';
+        el.querySelector('.wc-sec').style.transform = 'rotate(' + sec + 'deg)';
+
+        // Offset and day are both relative to whoever is viewing the page.
+        var thereUTC = Date.UTC(t.year, t.month - 1, t.day, t.hour, t.minute);
+        var diffH = Math.round((thereUTC - hereUTC) / 3600000);
+
+        var dayDiff =
+          Date.UTC(t.year, t.month - 1, t.day) -
+          Date.UTC(here.year, here.month - 1, here.day);
+        var dayLabel =
+          dayDiff > 0 ? 'Tomorrow' : dayDiff < 0 ? 'Yesterday' : 'Today';
+
+        el.querySelector('.wc-day').textContent = dayLabel;
+        el.querySelector('.wc-off').textContent =
+          diffH === 0
+            ? 'Same time'
+            : (diffH > 0 ? '+' : '−') + Math.abs(diffH) + 'HRS';
+      });
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  }
+
   /* ---------- Now playing widget ---------- */
   function initNowPlaying() {
     var card = document.getElementById('now-playing');
@@ -773,6 +878,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     startClock();
     initNowPlaying();
+    initWorldClock();
     initAppleMenu();
     initLocationPanel();
     initProjectsApp();
@@ -801,7 +907,16 @@
       var CASCADE = { notes: 0, about: 15, preview: 30, mail: 45, pages: 52, projects: 60 };
       var nudge = CASCADE[win.dataset.app] || 0;
 
-      win.style.left = Math.max(12, (window.innerWidth - w) / 2 + nudge) + 'px';
+      var left = Math.max(12, (window.innerWidth - w) / 2 + nudge);
+
+      // Keep windows clear of the top-left widget column on first paint,
+      // but only when there's room — otherwise centring wins.
+      var clearOfWidgets = 336;
+      if (window.innerWidth - w - 12 >= clearOfWidgets) {
+        left = Math.max(left, clearOfWidgets);
+      }
+
+      win.style.left = left + 'px';
       win.style.top = Math.max(48, (window.innerHeight - h) / 2 - 30 + nudge) + 'px';
     });
 

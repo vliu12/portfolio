@@ -373,12 +373,115 @@ body {
   line-height: 1.4;
 }
 
-/* ============ Now playing widget ============ */
-#now-playing {
+/* ============ Desktop widgets (top-left stack) ============ */
+#desktop-widgets {
   position: absolute;
   top: 38px;
   left: 20px;
   z-index: 1; /* above the wallpaper scrim, below any window */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ============ World clock ============ */
+#world-clock {
+  width: 296px;
+  padding: 14px 12px 12px;
+  border-radius: 16px;
+  background: rgba(28, 28, 30, 0.55);
+  backdrop-filter: saturate(180%) blur(22px);
+  -webkit-backdrop-filter: saturate(180%) blur(22px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
+  color: #f5f5f7;
+}
+
+.wc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.wc-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.wc-face {
+  width: 52px;
+  height: 52px;
+  display: block;
+}
+
+.wc-dial {
+  fill: #f5f5f7;
+}
+
+.wc-tick {
+  stroke: #86868b;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.wc-tick.major {
+  stroke: #1d1d1f;
+  stroke-width: 5;
+}
+
+.wc-hand {
+  stroke: #1d1d1f;
+  stroke-linecap: round;
+  transform-origin: 50px 50px;
+}
+
+.wc-hour {
+  stroke-width: 6;
+}
+
+.wc-min {
+  stroke-width: 4;
+}
+
+.wc-sec {
+  stroke: #ff9f0a;
+  stroke-width: 2;
+  transform-origin: 50px 50px;
+}
+
+.wc-pin {
+  fill: #1d1d1f;
+}
+
+.wc-city {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  margin-top: 5px;
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.wc-day {
+  font-size: 0.5rem;
+  color: rgba(245, 245, 247, 0.62);
+  line-height: 1.3;
+}
+
+.wc-off {
+  font-size: 0.5rem;
+  color: rgba(245, 245, 247, 0.44);
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============ Now playing widget ============ */
+#now-playing {
   display: flex;
   gap: 12px;
   width: 296px;
