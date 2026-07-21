@@ -186,6 +186,7 @@
       weak: ['built', 'build', 'show me', 'things you made', 'made'],
       reply: [
         "oh i've got a few! quick rundown:",
+        '• ResyFinder: finds open restaurant reservations on Resy\n' +
         '• SightBridge: CV-powered accessibility navigation app\n' +
         '• CMUEats: dining app, ~3k monthly users\n' +
         '• Music in the Neighbourhood: live nonprofit site\n' +
@@ -194,6 +195,16 @@
         '• Mini Blockchain: peer to peer transactions in Flask',
         'which one sounds interesting?',
         'the Projects app in the dock has em all too btw'
+      ]
+    },
+    {
+      id: 'resyfinder',
+      match: ['resyfinder', 'resy finder', 'resy', 'reservation', 'reservations', 'restaurant', 'restaurants'],
+      reply: [
+        'resyfinder!! it finds open restaurant reservations on Resy in real time',
+        'so instead of checking a bunch of restaurant pages one by one, u just filter by location, party size, time, cuisine, price, whatever',
+        'built it in Next.js + React w serverless api routes hitting Resy, and it plots the open spots on a map. deployed on Vercel. april 2026',
+        "it's live if u wanna try it: resy-finder-vh.vercel.app"
       ]
     },
     {
@@ -282,6 +293,7 @@
       weak: ['design', 'website'],
       reply: [
         'yeah i do full stack! frontend wise:',
+        '• ResyFinder: Next.js + React reservation finder\n' +
         '• CMUEats: React + TypeScript, ~3k monthly users\n' +
         '• SightBridge: React Native app\n' +
         '• Meditite: React\n' +

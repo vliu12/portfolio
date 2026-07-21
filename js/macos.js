@@ -58,6 +58,18 @@
   /* ---------- Project data ---------- */
   var PROJECTS = [
     {
+      id: 'resyfinder',
+      name: 'ResyFinder',
+      date: 'April 2026',
+      url: 'https://resy-finder-vh.vercel.app/',
+      stack: ['Next.js', 'React', 'Serverless Functions', 'Resy API', 'Vercel'],
+      body: [
+        'Built ResyFinder, a full-stack web app that surfaces real-time restaurant reservation openings from Resy, so diners can find available tables without checking each restaurant one by one.',
+        'Developed the frontend in Next.js and React backed by serverless API routes that query Resy and aggregate live availability, filterable by location, party size, date and time window, neighbourhood, cuisine, and price.',
+        'Plotted matching restaurants on an interactive map that clusters nearby openings and flags how many reservation slots are left.'
+      ]
+    },
+    {
       id: 'sightbridge',
       name: 'SightBridge',
       date: 'February 2025',
@@ -273,6 +285,42 @@
   }
 
   /* ---------- Now playing widget ---------- */
+  /* ---------- Calendar widget ---------- */
+  function initCalendar() {
+    var titleEl = document.getElementById('calendar-title');
+    var grid = document.getElementById('calendar-grid');
+    if (!titleEl || !grid) return;
+
+    var MONTHS = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    var DOWS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth();
+    var today = now.getDate();
+
+    titleEl.textContent = MONTHS[month].toUpperCase() + ' ' + year;
+
+    var firstDow = new Date(year, month, 1).getDay(); // 0 = Sunday
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    var html = '';
+    DOWS.forEach(function (d) {
+      html += '<span class="cal-dow">' + d + '</span>';
+    });
+    for (var i = 0; i < firstDow; i++) {
+      html += '<span class="cal-day"></span>';
+    }
+    for (var d = 1; d <= daysInMonth; d++) {
+      var cls = 'cal-day' + (d === today ? ' cal-today' : '');
+      html += '<span class="' + cls + '"><i>' + d + '</i></span>';
+    }
+    grid.innerHTML = html;
+  }
+
   /* ---------- Photos widget ---------- */
   function initPhotos() {
     var widget = document.getElementById('photos-widget');
@@ -1195,6 +1243,7 @@
     initNowPlaying();
     initWorldClock();
     initPhotos();
+    initCalendar();
     initAppleMenu();
     initLocationPanel();
     initDesktopDragging();
