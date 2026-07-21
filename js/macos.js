@@ -1189,9 +1189,29 @@
         "Wasn't super well organized the semester I took it, but the shift to language agnostic " +
         "design was a blessing. Class moves quickly and you must be familiar with FP (thanks 150), " +
         "but it's also one of the most useful classes, at least for finding jobs. I actually like " +
-        "that it's taught functionally rather than being just a DSA II class."
+        "that it's taught functionally rather than being just a DSA II class.",
+      '05-318':
+        "Not a very motivating or engaging course, but the topics are relevant and it fills SCS " +
+        "gened requirements.",
+      '05-391':
+        "Good class, more design oriented. I think before AI this class would have been more " +
+        "relevant and interesting, but it's an easy A and the projects are fun to do with your " +
+        "group members.",
+      '21-325':
+        "Good choice to fill a probability req. More aligned to quant questions/prep, and Pisztora " +
+        "is a misunderstood and actually really nice professor.",
+      '79-345':
+        "Actually a stimulating class because it was the first time I'd done anything humanities " +
+        "related / written an essay in 2 years. Would recommend, and Scott and his TAs are super " +
+        "nice and helpful. Easy A if you try.",
+      '85-150':
+        "No joke one of the hardest classes to get an A in; I scraped by with a 90.00 flat. The " +
+        "content is fine and it's not a terrible gened. If you're looking for something else to " +
+        "fill your requirements you should probably take Cognitive Psychology."
     };
-    var COURSE_CODES = ['15-112', '15-122', '15-150', '15-210', '15-213', '15-251'];
+    // Listed in `ls coursework`. 79-345 and 85-150 are intentionally left out
+    // (they still work if you type them — extra-hidden reviews).
+    var COURSE_CODES = ['05-318', '05-391', '15-112', '15-122', '15-150', '15-210', '15-213', '15-251', '21-325'];
 
     var history = [];
     var histIdx = 0;

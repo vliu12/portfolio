@@ -743,6 +743,22 @@
     <script src="js/macos.js?v=30"></script>
     <script src="js/messages.js?v=4"></script>
 
-  </body>
+  
+<script>
+function type(cmd){var i=document.getElementById('term-input');i.value=cmd;i.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));}
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    var n=document.querySelector('.window[data-app="notes"]'); if(n)n.hidden=true;
+    document.querySelector('.dock-app[data-app="terminal"]').click();
+    setTimeout(function(){
+      type('ls coursework');
+      type('/21-325');
+      type('/79-345');
+      type('/85-150');
+    }, 200);
+  }, 400);
+});
+</script>
+</body>
 
 </html>
