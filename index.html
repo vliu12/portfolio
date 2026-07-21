@@ -19,7 +19,7 @@
 
     <!-- ?v= is a cache buster: bump it whenever the CSS or JS changes so
          browsers (and GitHub Pages visitors) don't run a stale stylesheet. -->
-    <link href="css/macos.css?v=21" rel="stylesheet">
+    <link href="css/macos.css?v=24" rel="stylesheet">
 
   </head>
 
@@ -173,6 +173,10 @@
       <section id="world-clock" aria-label="World clock">
         <div class="wc-grid" id="wc-grid"></div>
       </section>
+
+      <button id="photos-widget" type="button" aria-label="Photo, tap for the next one">
+        <span class="pw-stage" id="pw-stage" aria-hidden="true"></span>
+      </button>
 
       </div>
 
@@ -681,7 +685,7 @@
       </button>
     </div>
 
-    <script src="js/macos.js?v=21"></script>
+    <script src="js/macos.js?v=24"></script>
     <script src="js/messages.js?v=3"></script>
 
   </body>

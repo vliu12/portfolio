@@ -607,6 +607,53 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* ============ Photos widget ============ */
+#photos-widget {
+  position: relative;
+  width: 296px;
+  height: 296px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  background: rgba(28, 28, 30, 0.55);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#photos-widget:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+}
+
+#photos-widget:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 2px;
+}
+
+.pw-stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* Each photo is stacked and cross-faded by toggling .is-active. */
+.pw-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.pw-stage img.is-active {
+  opacity: 1;
+}
+
 /* Dragging feedback — app shortcuts only, not the widgets */
 .desktop-icon {
   touch-action: none; /* let pointer drags work on touch devices */

@@ -273,6 +273,75 @@
   }
 
   /* ---------- Now playing widget ---------- */
+  /* ---------- Photos widget ---------- */
+  function initPhotos() {
+    var widget = document.getElementById('photos-widget');
+    var stage = document.getElementById('pw-stage');
+    if (!widget || !stage) return;
+
+    var COUNT = 9;
+
+    // Build the src list and a lightly shuffled order, so the album doesn't
+    // open on the same shot every visit.
+    var srcs = [];
+    for (var i = 1; i <= COUNT; i++) {
+      srcs.push('img/album/album-' + (i < 10 ? '0' + i : i) + '.jpg');
+    }
+    for (var s = srcs.length - 1; s > 0; s--) {
+      var j = Math.floor(Math.random() * (s + 1));
+      var t = srcs[s]; srcs[s] = srcs[j]; srcs[j] = t;
+    }
+
+    // Two layers are enough to cross-fade between any two photos.
+    var layers = [document.createElement('img'), document.createElement('img')];
+    layers.forEach(function (img) {
+      img.alt = '';
+      img.decoding = 'async';
+      stage.appendChild(img);
+    });
+
+    var pos = 0;      // index into srcs of the photo currently shown
+    var front = 0;    // which layer is visible
+
+    function preload(index) {
+      var pre = new Image();
+      pre.src = srcs[index % srcs.length];
+    }
+
+    function show(index) {
+      index = ((index % srcs.length) + srcs.length) % srcs.length;
+      pos = index;
+
+      var back = front ^ 1;
+      var img = layers[back];
+
+      // Swap layers only once the new photo has actually decoded, so we never
+      // flash an empty frame. Guarded so a cached image (which can satisfy both
+      // the onload and the complete check) only swaps once.
+      var swapped = false;
+      function swap() {
+        if (swapped) return;
+        swapped = true;
+        layers[front].classList.remove('is-active');
+        img.classList.add('is-active');
+        front = back;
+      }
+      img.onload = swap;
+      img.src = srcs[index];
+      if (img.complete && img.naturalWidth) swap();
+
+      preload(index + 1);
+    }
+
+    // First photo shows immediately; the rest stream in as they're tapped to.
+    show(0);
+
+    // Tap to advance to the next photo. No auto-cycling.
+    widget.addEventListener('click', function () {
+      show(pos + 1);
+    });
+  }
+
   function initNowPlaying() {
     var card = document.getElementById('now-playing');
     if (!card) return;
@@ -1125,6 +1194,7 @@
     startClock();
     initNowPlaying();
     initWorldClock();
+    initPhotos();
     initAppleMenu();
     initLocationPanel();
     initDesktopDragging();
