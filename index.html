@@ -19,7 +19,7 @@
 
     <!-- ?v= is a cache buster: bump it whenever the CSS or JS changes so
          browsers (and GitHub Pages visitors) don't run a stale stylesheet. -->
-    <link href="css/macos.css?v=25" rel="stylesheet">
+    <link href="css/macos.css?v=27" rel="stylesheet">
 
   </head>
 
@@ -182,8 +182,17 @@
 
       <!-- ---------- Calendar (transparent, sits right of the widgets) ---------- -->
       <section id="calendar-widget" aria-label="Calendar">
-        <div class="cal-title" id="calendar-title">—</div>
+        <div class="cal-head">
+          <div class="cal-title" id="calendar-title">—</div>
+          <button class="cal-nav" id="cal-prev" type="button" aria-label="Previous month">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4l-8 8 8 8"/></svg>
+          </button>
+          <button class="cal-nav" id="cal-next" type="button" aria-label="Next month">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8"/></svg>
+          </button>
+        </div>
         <div class="cal-grid" id="calendar-grid"></div>
+        <div class="cal-egg" id="cal-egg">🎂 u found my bday :)</div>
       </section>
 
       <!-- ---------- Desktop shortcuts ---------- -->
@@ -633,6 +642,35 @@
         <div class="resize-handle"></div>
       </div>
 
+      <!-- ---------- Terminal ---------- -->
+      <div class="window theme-terminal" data-app="terminal" style="width: 600px; height: 380px;" hidden>
+        <div class="titlebar">
+          <div class="traffic">
+            <button class="close" type="button" aria-label="Close">
+              <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1.5 1.5l5 5M6.5 1.5l-5 5"/></svg>
+            </button>
+            <button class="minimize" type="button" aria-label="Minimize">
+              <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1.2 4h5.6"/></svg>
+            </button>
+            <button class="zoom" type="button" aria-label="Zoom">
+              <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1.5 1.5h5v5h-5z"/></svg>
+            </button>
+          </div>
+          <span class="title">visitor — zsh — 80×24</span>
+        </div>
+
+        <div class="term-body" id="term-body">
+          <div id="term-log"></div>
+          <div class="term-inputline">
+            <span class="term-prompt" id="term-prompt">visitor@victoria ~ %</span>
+            <input class="term-input" id="term-input" type="text" spellcheck="false"
+                   autocomplete="off" autocapitalize="off" aria-label="Terminal input">
+          </div>
+        </div>
+
+        <div class="resize-handle"></div>
+      </div>
+
     </div>
 
     <!-- ============ Dock ============ -->
@@ -689,9 +727,20 @@
         </span>
         <span class="dot"></span>
       </button>
+
+      <button class="dock-app" data-app="terminal" type="button" aria-label="Terminal">
+        <span class="tooltip">Terminal</span>
+        <span class="icon terminal">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6l5 4-5 4"/>
+            <line x1="11" y1="15" x2="18" y2="15"/>
+          </svg>
+        </span>
+        <span class="dot"></span>
+      </button>
     </div>
 
-    <script src="js/macos.js?v=26"></script>
+    <script src="js/macos.js?v=29"></script>
     <script src="js/messages.js?v=4"></script>
 
   </body>

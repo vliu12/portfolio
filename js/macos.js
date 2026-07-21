@@ -291,34 +291,84 @@
     var grid = document.getElementById('calendar-grid');
     if (!titleEl || !grid) return;
 
+    var prevBtn = document.getElementById('cal-prev');
+    var nextBtn = document.getElementById('cal-next');
+    var egg = document.getElementById('cal-egg');
+
     var MONTHS = [
       'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
     var DOWS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+    // April 12 is Victoria's birthday — clicking it is the easter egg.
+    var BDAY_MONTH = 3;
+    var BDAY_DAY = 12;
+
     var now = new Date();
-    var year = now.getFullYear();
-    var month = now.getMonth();
-    var today = now.getDate();
+    var todayY = now.getFullYear();
+    var todayM = now.getMonth();
+    var todayD = now.getDate();
 
-    titleEl.textContent = MONTHS[month].toUpperCase() + ' ' + year;
+    // The month currently on screen; starts on today, moves with the arrows.
+    var viewY = todayY;
+    var viewM = todayM;
+    var eggTimer = null;
 
-    var firstDow = new Date(year, month, 1).getDay(); // 0 = Sunday
-    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    function render() {
+      titleEl.textContent = MONTHS[viewM].toUpperCase() + ' ' + viewY;
 
-    var html = '';
-    DOWS.forEach(function (d) {
-      html += '<span class="cal-dow">' + d + '</span>';
+      var firstDow = new Date(viewY, viewM, 1).getDay(); // 0 = Sunday
+      var daysInMonth = new Date(viewY, viewM + 1, 0).getDate();
+
+      var html = '';
+      DOWS.forEach(function (d) {
+        html += '<span class="cal-dow">' + d + '</span>';
+      });
+      for (var i = 0; i < firstDow; i++) {
+        html += '<span class="cal-day"></span>';
+      }
+      for (var d = 1; d <= daysInMonth; d++) {
+        // Only ring "today" while the real current month is on screen.
+        var isToday = viewY === todayY && viewM === todayM && d === todayD;
+        var cls = 'cal-day' + (isToday ? ' cal-today' : '');
+        html += '<span class="' + cls + '" data-day="' + d + '"><i>' + d + '</i></span>';
+      }
+      grid.innerHTML = html;
+    }
+
+    function hideEgg() {
+      if (egg) egg.classList.remove('show');
+    }
+
+    function showEgg() {
+      if (!egg) return;
+      egg.classList.add('show');
+      clearTimeout(eggTimer);
+      eggTimer = setTimeout(hideEgg, 4200);
+    }
+
+    function shift(delta) {
+      viewM += delta;
+      if (viewM < 0) { viewM = 11; viewY -= 1; }
+      else if (viewM > 11) { viewM = 0; viewY += 1; }
+      hideEgg();
+      render();
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function () { shift(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', function () { shift(1); });
+
+    grid.addEventListener('click', function (e) {
+      var cell = e.target.closest('.cal-day[data-day]');
+      if (!cell) return;
+      if (viewM === BDAY_MONTH && parseInt(cell.dataset.day, 10) === BDAY_DAY) {
+        cell.classList.add('cal-bday');
+        showEgg();
+      }
     });
-    for (var i = 0; i < firstDow; i++) {
-      html += '<span class="cal-day"></span>';
-    }
-    for (var d = 1; d <= daysInMonth; d++) {
-      var cls = 'cal-day' + (d === today ? ' cal-today' : '');
-      html += '<span class="' + cls + '"><i>' + d + '</i></span>';
-    }
-    grid.innerHTML = html;
+
+    render();
   }
 
   /* ---------- Photos widget ---------- */
@@ -1078,6 +1128,241 @@
     renderProject(PROJECTS[0]);
   }
 
+  /* ---------- Terminal ----------
+     Looks like an ordinary shell. Nothing on screen calls it a review tool;
+     the candid course takes are the payoff you only reach by poking around
+     (`ls` -> `coursework/`) or by already knowing to type a class code. */
+  function initTerminal() {
+    var win = document.querySelector('.window[data-app="terminal"]');
+    var body = document.getElementById('term-body');
+    var log = document.getElementById('term-log');
+    var input = document.getElementById('term-input');
+    if (!win || !body || !log || !input) return;
+
+    var promptEl = document.getElementById('term-prompt');
+    var cwd = '~'; // '~', '~/coursework', or '~/projects'
+
+    function promptStr() {
+      return 'visitor@victoria ' + cwd + ' %';
+    }
+    function syncPrompt() {
+      if (promptEl) promptEl.textContent = promptStr();
+    }
+
+    // A tiny two-level filesystem, just real enough that the directories `ls`
+    // shows can actually be `cd`'d into.
+    function dirContents(path) {
+      if (path === '~') return ['coursework/', 'projects/', 'resume.pdf'];
+      if (path === '~/coursework') return COURSE_CODES.slice();
+      if (path === '~/projects') return ['README'];
+      return null;
+    }
+    function resolveDir(arg) {
+      var a = arg.replace(/^\.\//, '').replace(/\/+$/, '').trim();
+      if (a === '' || a === '~' || a === '/') return '~';
+      if (a === '.') return cwd;
+      if (a === '..') return '~'; // only two levels deep, so up is always home
+      if (a === 'coursework' || a === '~/coursework') return '~/coursework';
+      if (a === 'projects' || a === '~/projects') return '~/projects';
+      return null;
+    }
+
+    // The reviews, keyed by canonical course code. 15-213 and 18-213 are the
+    // same class under two department numbers.
+    var REVIEWS = {
+      '15-112':
+        "Good course overall, extremely well structured (to the point where you used to be " +
+        "able to not go to lecture; these days they've changed it to accommodate AI). " +
+        "Kosbie can be kind of evil but he has good intents for your success.",
+      '15-122':
+        "Evil class, genuinely, and it's only gotten more evil since I took it.",
+      '15-150':
+        "The best intro(ish) class, taught by 2 women!! If you knew a lot of DSA coming into " +
+        "CMU this is usually your first intro to new content, and a different style of thinking.",
+      '15-213':
+        "Chill(er) class. The projects give you a ton of understanding and the content is way " +
+        "more engaging than the 100 level classes. (aka 18-213)",
+      '15-251':
+        "Will make you smarter after you take it. Ada is super sweet, but if you don't have him " +
+        "and aren't a genius you will struggle.",
+      '15-210':
+        "Wasn't super well organized the semester I took it, but the shift to language agnostic " +
+        "design was a blessing. Class moves quickly and you must be familiar with FP (thanks 150), " +
+        "but it's also one of the most useful classes, at least for finding jobs. I actually like " +
+        "that it's taught functionally rather than being just a DSA II class."
+    };
+    var COURSE_CODES = ['15-112', '15-122', '15-150', '15-210', '15-213', '15-251'];
+
+    var history = [];
+    var histIdx = 0;
+
+    function line(text, cls) {
+      var div = document.createElement('div');
+      div.className = 'term-line' + (cls ? ' ' + cls : '');
+      div.textContent = text;
+      log.appendChild(div);
+      return div;
+    }
+
+    function out(text, cls) {
+      line(text, 'term-out' + (cls ? ' ' + cls : ''));
+    }
+
+    function scrollDown() {
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function echoCommand(raw) {
+      var div = document.createElement('div');
+      div.className = 'term-line';
+      var p = document.createElement('span');
+      p.className = 'term-prompt';
+      p.textContent = promptStr() + ' ';
+      var c = document.createElement('span');
+      c.className = 'term-cmd';
+      c.textContent = raw;
+      div.appendChild(p);
+      div.appendChild(c);
+      log.appendChild(div);
+    }
+
+    // Accept "/15-112", "15-112", "15112", and the 18-213 alias.
+    function courseKey(token) {
+      var c = token.replace(/^\//, '').trim().toLowerCase();
+      if (c === '18-213' || c === '18213') return '15-213';
+      var m = c.match(/^(\d{2})-?(\d{3})$/);
+      if (m) c = m[1] + '-' + m[2];
+      return c;
+    }
+
+    function printReview(code) {
+      out(code, 'term-accent');
+      out(REVIEWS[code]);
+    }
+
+    function help() {
+      out('commands:', 'term-muted');
+      out('  help            you\'re looking at it');
+      out('  whoami          who\'s asking?');
+      out('  ls [dir]        look around');
+      out('  cd [dir]        change directory');
+      out('  cat <file>      read a file');
+      out('  echo <text>     repeat after me');
+      out('  date            today\'s date');
+      out('  clear           wipe the screen');
+    }
+
+    function exec(raw) {
+      var trimmed = raw.trim();
+      echoCommand(raw);
+      if (!trimmed) return;
+
+      history.push(trimmed);
+      histIdx = history.length;
+
+      var parts = trimmed.split(/\s+/);
+      var cmd = parts[0].toLowerCase();
+      var arg = trimmed.slice(parts[0].length).trim();
+
+      // A course code (with or without the slash) wins before anything else.
+      var key = courseKey(parts[0]);
+      if (REVIEWS[key]) { printReview(key); return; }
+
+      switch (cmd) {
+        case 'help':
+        case '?':
+          help();
+          break;
+        case 'whoami':
+          out('a visitor with good taste 👀');
+          break;
+        case 'ls':
+          var lsPath = arg ? resolveDir(arg) : cwd;
+          if (lsPath && dirContents(lsPath)) out(dirContents(lsPath).join('   '));
+          else out('ls: ' + arg + ': No such file or directory', 'term-err');
+          break;
+        case 'cd':
+          var dest = resolveDir(arg);
+          if (dest === null) out('cd: no such file or directory: ' + arg, 'term-err');
+          else { cwd = dest; syncPrompt(); }
+          break;
+        case 'cat':
+          var catKey = courseKey(arg);
+          if (REVIEWS[catKey]) printReview(catKey);
+          else if (/resume/.test(arg)) out("it's a pdf, silly. it's in the dock.", 'term-muted');
+          else if (/^readme$/i.test(arg)) out('the projects live in the Projects app in the dock, way nicer there :)', 'term-muted');
+          else if (arg) out('cat: ' + arg + ': No such file or directory', 'term-err');
+          else out('usage: cat <file>', 'term-muted');
+          break;
+        case 'pwd':
+          out('/Users/victoria' + (cwd === '~' ? '' : cwd.slice(1)));
+          break;
+        case 'echo':
+          out(arg);
+          break;
+        case 'date':
+          out(new Date().toString());
+          break;
+        case 'sudo':
+          out('nice try ;)', 'term-muted');
+          break;
+        case 'clear':
+        case 'cls':
+          log.innerHTML = '';
+          break;
+        case 'exit':
+        case 'quit':
+          closeWindow(win);
+          break;
+        default:
+          out('zsh: command not found: ' + parts[0], 'term-err');
+      }
+    }
+
+    // Opening banner, written once so it's already there when the window opens.
+    var boot = document.createElement('div');
+    boot.className = 'term-line term-out term-muted';
+    boot.textContent =
+      'Last login: ' + new Date().toDateString() + ' on ttys001\n' +
+      'victoria-liu portfolio shell. type `help`, or poke around.';
+    log.appendChild(boot);
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var val = input.value;
+        input.value = '';
+        exec(val);
+        scrollDown();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (histIdx > 0) { histIdx--; input.value = history[histIdx]; }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; }
+        else { histIdx = history.length; input.value = ''; }
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'l' || e.key === 'L')) {
+        e.preventDefault();
+        log.innerHTML = '';
+      }
+    });
+
+    // Clicking anywhere in the window drops focus into the prompt, but don't
+    // steal it mid-selection or from the traffic-light buttons.
+    body.addEventListener('mousedown', function (e) {
+      if (e.target === input) return;
+      if (window.getSelection && String(window.getSelection())) return;
+      setTimeout(function () { input.focus(); }, 0);
+    });
+
+    var dockBtn = document.querySelector('.dock-app[data-app="terminal"]');
+    if (dockBtn) {
+      dockBtn.addEventListener('click', function () {
+        setTimeout(function () { input.focus(); }, 60);
+      });
+    }
+  }
+
   /* ---------- Mail app ---------- */
   function initMailApp() {
     var form = document.getElementById('mail-form');
@@ -1250,6 +1535,7 @@
     initNotesApp();
     initProjectsApp();
     initMailApp();
+    initTerminal();
     initAppLinks();
     initDock();
 
@@ -1271,7 +1557,7 @@
       // Cascade the windows rather than centring them all on top of
       // each other. Notes is the narrowest, so centring alone would
       // leave it nearly flush with Projects.
-      var CASCADE = { notes: 0, about: 15, preview: 30, mail: 45, pages: 52, projects: 60, messages: 68 };
+      var CASCADE = { notes: 0, about: 15, preview: 30, mail: 45, pages: 52, projects: 60, messages: 68, terminal: 76 };
       var nudge = CASCADE[win.dataset.app] || 0;
 
       var left = Math.max(12, (window.innerWidth - w) / 2 + nudge);
