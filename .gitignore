@@ -1,1 +1,4 @@
 node_modules
+
+# Local preview/test scratch files (never deploy these)
+_shot.html
