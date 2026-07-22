@@ -1593,8 +1593,18 @@
       win.style.top = Math.max(48, (window.innerHeight - h) / 2 - 30 + nudge) + 'px';
     });
 
-    // Notes is the landing view: open it as soon as the desktop loads.
+    // Notes is the landing view on the Mac — but on phones the iOS
+    // homescreen is the landing view, so don't auto-open anything there.
+    var onPhone = window.matchMedia('(max-width: 720px)').matches;
     var notesWin = document.querySelector('.window[data-app="notes"]');
-    if (notesWin) openWindow(notesWin);
+    if (notesWin && !onPhone) openWindow(notesWin);
   });
+
+  // Small window API so the iOS layer (js/ios.js) can drive the same
+  // windows the Dock does, instead of duplicating the open/close logic.
+  window.macDesktop = {
+    openWindow: openWindow,
+    closeWindow: closeWindow,
+    focusWindow: focusWindow
+  };
 })();

@@ -1,0 +1,832 @@
+/* =====================================================
+   iOS phone-homescreen skin.
+
+   Everything here is scoped under :root.ios (the <html> element gets the
+   `ios` class on phones, decided before first paint in index.html and kept
+   in sync by js/ios.js). On wider screens none of this applies, so the Mac
+   desktop is left completely untouched.
+   ===================================================== */
+
+/* The homescreen + app chrome only exist on phones. */
+#ios-home,
+#ios-appbar,
+#ios-homebar {
+  display: none;
+}
+
+:root.ios #ios-home {
+  display: flex;
+}
+
+/* While an app is open it fills the screen, so hide the homescreen behind it.
+   (The window lives inside #desktop's own stacking context, so it can't be
+   layered above #ios-home by z-index alone — hiding home is the clean fix.) */
+:root.ios.app-open #ios-home {
+  display: none;
+}
+
+/* ---- Hide the Mac chrome on phones ---- */
+:root.ios #menubar,
+:root.ios #dock,
+:root.ios #desktop-widgets,
+:root.ios #calendar-widget,
+:root.ios #desktop-icons,
+:root.ios .desktop-icon, /* macos.js reparents these onto #desktop, so hide them directly */
+:root.ios #apple-menu,
+:root.ios #location-panel {
+  display: none !important;
+}
+
+/* Keep the wallpaper, drop the Mac scrim (the homescreen has its own). */
+:root.ios #desktop::after {
+  content: none;
+}
+
+:root.ios body {
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Homescreen shell
+   ========================================================================== */
+#ios-home {
+  position: fixed;
+  inset: 0;
+  z-index: 5; /* above wallpaper, below open apps */
+  flex-direction: column;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', sans-serif;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* A soft darkening at top + bottom keeps the status bar and dock legible
+   over bright parts of the wallpaper. */
+#ios-home::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.28) 0%,
+    rgba(0, 0, 0, 0.04) 14%,
+    rgba(0, 0, 0, 0.04) 74%,
+    rgba(0, 0, 0, 0.34) 100%
+  );
+}
+
+/* ---- Status bar ---- */
+.ios-statusbar {
+  flex: 0 0 auto;
+  height: 44px;
+  padding: 0 26px 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.ios-sb-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ios-sb-signal,
+.ios-sb-wifi {
+  height: 12px;
+  width: auto;
+  fill: #fff;
+}
+
+.ios-sb-batt {
+  position: relative;
+  display: inline-block;
+  width: 25px;
+  height: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 3px;
+  padding: 1.5px;
+}
+
+.ios-sb-batt::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 3.5px;
+  width: 2px;
+  height: 4px;
+  border-radius: 0 1px 1px 0;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.ios-sb-batt i {
+  display: block;
+  height: 100%;
+  width: 80%;
+  background: #fff;
+  border-radius: 1.5px;
+}
+
+/* ---- Canvas (widgets + grid) ---- */
+.ios-canvas {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 22px 12px;
+}
+
+/* ==========================================================================
+   Widgets
+   ========================================================================== */
+.ios-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* start (not the default stretch): each widget takes its column width and
+     derives a square height from aspect-ratio, instead of stretching to the
+     tallest widget's content and then blowing its width out to stay square. */
+  align-items: start;
+  gap: 16px;
+  margin: 6px 0 22px;
+}
+
+.ios-widget {
+  position: relative;
+  display: block;
+  min-width: 0; /* let the grid track cap the width; content ellipsizes inside */
+  aspect-ratio: 1 / 1;
+  border-radius: 22px;
+  border: none;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  text-decoration: none;
+  color: #fff;
+  background: rgba(28, 28, 30, 0.42);
+  backdrop-filter: saturate(160%) blur(20px);
+  -webkit-backdrop-filter: saturate(160%) blur(20px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ios-widget:active {
+  transform: scale(0.97);
+}
+
+/* Photos widget */
+.ios-widget-photos .iw-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.ios-widget-photos .iw-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.ios-widget-photos .iw-stage img.is-active {
+  opacity: 1;
+}
+
+.iw-badge {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  text-shadow: none;
+}
+
+/* Music widget */
+.ios-widget-music {
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  text-shadow: none;
+}
+
+.iwm-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: #1db954;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.iwm-status {
+  min-width: 0;
+}
+
+.iwm-logo {
+  width: 15px;
+  height: 15px;
+  fill: #1db954;
+  flex: 0 0 auto;
+}
+
+.iwm-status {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.iwm-art {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.iwm-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.iwm-meta {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.iwm-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.iwm-artist {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.66);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.iwm-bar {
+  margin-top: auto;
+  display: block;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+
+.iwm-fill {
+  display: block;
+  height: 100%;
+  width: 30%;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* ==========================================================================
+   App grid
+   ========================================================================== */
+.ios-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px 14px;
+}
+
+.ios-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  padding: 0;
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ios-app:active .ios-app-icon {
+  transform: scale(0.9);
+}
+
+.ios-app-icon {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+  transition: transform 0.12s ease;
+}
+
+.ios-app-icon svg {
+  width: 60%;
+  height: 60%;
+}
+
+.ios-app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ios-app-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Per-app icon looks ---- */
+.ico-mail    { background: linear-gradient(180deg, #33b8ff, #067bfd); }
+.ico-mail svg    { fill: #fff; }
+
+.ico-messages { background: linear-gradient(180deg, #5bf675, #17c93b); }
+.ico-messages svg { fill: #fff; }
+
+.ico-notes   { background: linear-gradient(180deg, #fff2b3, #ffd84d); }
+.ico-notes svg   { stroke: #b8912a; stroke-width: 2; stroke-linecap: round; }
+
+.ico-work    { background: linear-gradient(180deg, #ffb14d, #f5860f); }
+.ico-work svg    { fill: #fff; }
+
+.ico-projects { background: linear-gradient(180deg, #7d8aa5, #47506b); }
+.ico-projects svg { fill: #ffd15c; }
+
+.ico-calendar { background: #fff; flex-direction: column; }
+.ico-cal-dow {
+  color: #ff3b30;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  margin-top: 7px;
+  text-transform: uppercase;
+}
+.ico-cal-day {
+  color: #1d1d1f;
+  font-size: 1.875rem;
+  font-weight: 300;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.ico-photos { background: #fff; }
+.ico-photos svg { width: 82%; height: 82%; }
+
+.ico-resume  { background: linear-gradient(180deg, #ff6b6b, #e23b3b); }
+.ico-resume svg  { fill: #fff; }
+
+.ico-about   { background: #d8d8dd; }
+
+.ico-github  { background: linear-gradient(180deg, #333, #0d0d0d); }
+.ico-github svg  { fill: #fff; }
+
+.ico-linkedin { background: linear-gradient(180deg, #2a9be0, #0a66c2); }
+.ico-linkedin svg { fill: #fff; }
+
+.ico-x       { background: #000; }
+.ico-x svg       { fill: #fff; }
+
+.ico-spotify { background: #1db954; }
+.ico-spotify svg { fill: #fff; }
+
+/* ==========================================================================
+   Dock
+   ========================================================================== */
+.ios-dock {
+  flex: 0 0 auto;
+  margin: 0 12px calc(10px + env(safe-area-inset-bottom));
+  padding: 12px;
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+  border-radius: 30px;
+  background: rgba(60, 60, 67, 0.28);
+  backdrop-filter: saturate(160%) blur(24px);
+  -webkit-backdrop-filter: saturate(160%) blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ios-dock .ios-app-label {
+  display: none; /* dock icons are unlabelled, like iOS */
+}
+
+/* ==========================================================================
+   Open app (full-screen), plus nav + home bar
+   ========================================================================== */
+:root.ios .window {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: none !important; /* base .window caps height at 100vh-104px */
+  border-radius: 0 !important;
+  border: none !important;
+  margin: 0 !important;
+  opacity: 1;
+  z-index: 40;
+  /* Leave room for the status bar / nav on top and the home bar below. */
+  padding-top: calc(env(safe-area-inset-top) + 46px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 26px);
+  background: #1c1c1e;
+}
+
+/* Entrance only while opening — scoped so the base window is never left in a
+   backwards-filled (transparent) state. */
+:root.ios .window.opening {
+  animation: ios-app-in 0.26s ease;
+}
+
+@keyframes ios-app-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* The Mac title bars and resize handles have no place on a phone. */
+:root.ios .window .titlebar,
+:root.ios .window .resize-handle {
+  display: none !important;
+}
+
+/* Light-themed apps keep their own body background; just make sure the
+   letterboxed area around the content matches so it reads as one screen. */
+:root.ios .theme-notes,
+:root.ios .theme-messages { background: #fff; }
+:root.ios .theme-pages    { background: #e9e9ea; }
+:root.ios .theme-preview  { background: #525659; }
+:root.ios .theme-cal-app,
+:root.ios .theme-photos-app { background: #1c1c1e; }
+
+/* Give the inner scroll regions the full height now that the title bar
+   is gone. */
+:root.ios .window .window-body,
+:root.ios .window .mail-body,
+:root.ios .window .pdf-body,
+:root.ios .window .pages-canvas,
+:root.ios .window .about-body,
+:root.ios .window .calapp-body,
+:root.ios .window .photoapp-body {
+  height: 100%;
+}
+
+/* ---- Top nav bar (shown while an app is open) ---- */
+:root.ios #ios-appbar {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(env(safe-area-inset-top) + 46px);
+  padding: env(safe-area-inset-top) 12px 0;
+  align-items: center;
+  gap: 4px;
+  z-index: 60;
+  color: #fff;
+  background: rgba(28, 28, 30, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+:root.ios #ios-appbar[hidden] { display: none; }
+
+.ios-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  border: none;
+  background: none;
+  color: #0a84ff;
+  font-size: 1rem;
+  font-weight: 400;
+  padding: 6px 6px 6px 0;
+  cursor: pointer;
+}
+
+.ios-back svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #0a84ff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ios-appbar-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* Light apps get a dark title over their light nav — but the nav itself is
+   dark glass, so white text is correct everywhere. */
+
+/* ---- Bottom home indicator ---- */
+:root.ios #ios-homebar {
+  display: flex;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(env(safe-area-inset-bottom) + 24px);
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 8px;
+  z-index: 60;
+  background: transparent;
+}
+
+:root.ios #ios-homebar[hidden] { display: none; }
+
+.ios-home-indicator {
+  width: 140px;
+  height: 5px;
+  border-radius: 3px;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  padding: 0;
+}
+
+/* On light apps the home indicator sits over light content — darken it. */
+:root.ios.app-light .ios-home-indicator {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* ==========================================================================
+   Calendar app
+   ========================================================================== */
+.calapp-body {
+  padding: 18px 16px 8px;
+  color: #f5f5f7;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.calapp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.calapp-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.calapp-title .calapp-year { color: #ff453a; }
+
+.calapp-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.calapp-arrow {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+}
+
+.calapp-arrow svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: #ff453a;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.calapp-today {
+  border: none;
+  background: none;
+  color: #ff453a;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.calapp-dows {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.calapp-dows span {
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.calapp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px 2px;
+  padding-top: 8px;
+  overflow-y: auto;
+}
+
+.calapp-cell {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.0625rem;
+  font-weight: 400;
+  border: none;
+  background: none;
+  color: #f5f5f7;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.calapp-cell.empty { visibility: hidden; }
+
+.calapp-cell .num {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.calapp-cell.today .num {
+  background: #ff453a;
+  color: #fff;
+  font-weight: 600;
+}
+
+.calapp-cell.bday .num {
+  background: #ffd84d;
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+.calapp-egg {
+  margin: 10px 4px 0;
+  text-align: center;
+  font-size: 0.9375rem;
+  color: #ffd84d;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.calapp-egg.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Photos app
+   ========================================================================== */
+.photoapp-body {
+  padding: 4px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.photoapp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+
+.photoapp-grid button {
+  border: none;
+  padding: 0;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #2a2a2c;
+  cursor: pointer;
+}
+
+.photoapp-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photoapp-viewer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photoapp-viewer[hidden] { display: none; }
+
+.pv-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.pv-close {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 52px);
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.pv-close svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.pv-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.pv-arrow svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pv-prev { left: 10px; }
+.pv-next { right: 10px; }
+
+/* On desktop these two apps can still be opened from the Mac (they're just
+   windows); give them a sensible non-fullscreen look there. Nothing to do —
+   the base .window styles from macos.css already handle it. */
